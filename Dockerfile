@@ -1,6 +1,6 @@
 # syntax=docker/dockerfile:1
 # Builder stage
-FROM node:22-alpine AS builder
+FROM node:20-alpine AS builder
 
 WORKDIR /app
 
@@ -13,12 +13,6 @@ RUN npm ci
 # Копируем исходный код
 COPY . .
 
-# Build args для NEXT_PUBLIC_* (встраиваются в бандл на этапе сборки)
-ARG NEXT_PUBLIC_APP_URL
-ARG NEXT_PUBLIC_DIRECTUS_URL
-ENV NEXT_PUBLIC_APP_URL=$NEXT_PUBLIC_APP_URL
-ENV NEXT_PUBLIC_DIRECTUS_URL=$NEXT_PUBLIC_DIRECTUS_URL
-
 # Сборка приложения
 ENV NEXT_TELEMETRY_DISABLED=1
 RUN npm run build
@@ -28,7 +22,7 @@ RUN cp -r public .next/standalone/ && \
     cp -r .next/static .next/standalone/.next/
 
 # Runner stage
-FROM node:22-alpine AS runner
+FROM node:20-alpine AS runner
 
 WORKDIR /app
 
