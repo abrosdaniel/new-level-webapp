@@ -2,7 +2,10 @@ import { NextResponse } from "next/server";
 import { cookies } from "next/headers";
 import { isDirectusError } from "@directus/sdk";
 import { verifyToken, getCookieName, getAuthCookieOptions } from "@/lib/auth";
-import { getValidDirectusToken, refreshDirectusTokens } from "@/lib/directus-auth";
+import {
+  getValidDirectusToken,
+  refreshDirectusTokens,
+} from "@/lib/directus-auth";
 
 const url = process.env.NEXT_PUBLIC_DIRECTUS_URL;
 const COOKIE_MAX_AGE = 60 * 60 * 24 * 30;
@@ -19,7 +22,9 @@ export async function POST(req: Request) {
   try {
     const cookieStore = await cookies();
     let directusToken = cookieStore.get("directus_token")?.value;
-    const directusRefreshToken = cookieStore.get("directus_refresh_token")?.value;
+    const directusRefreshToken = cookieStore.get(
+      "directus_refresh_token",
+    )?.value;
     let useUserToken = false;
 
     if (!directusToken) {
@@ -39,10 +44,7 @@ export async function POST(req: Request) {
     }
 
     if (!directusToken) {
-      return NextResponse.json(
-        { error: "Not authenticated" },
-        { status: 401 },
-      );
+      return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
     }
 
     let tokensToSet: { access: string; refresh?: string } | undefined;
@@ -63,10 +65,7 @@ export async function POST(req: Request) {
     const maxSizeRaw = formData.get("maxSize") as string | null;
 
     if (!file || !(file instanceof File)) {
-      return NextResponse.json(
-        { error: "Выберите файл" },
-        { status: 400 },
-      );
+      return NextResponse.json({ error: "Выберите файл" }, { status: 400 });
     }
 
     const acceptList =
@@ -79,7 +78,10 @@ export async function POST(req: Request) {
         ? parseInt(maxSizeRaw, 10)
         : null;
 
-    if (acceptList.length > 0 && !acceptList.includes(file.type.toLowerCase())) {
+    if (
+      acceptList.length > 0 &&
+      !acceptList.includes(file.type.toLowerCase())
+    ) {
       return NextResponse.json(
         {
           error: `Недопустимый тип файла. Разрешены: ${acceptList.join(", ")}`,
@@ -129,7 +131,9 @@ export async function POST(req: Request) {
         const refreshed = await refreshDirectusTokens(directusRefreshToken);
         if (refreshed) {
           uploadRes = await doUpload(refreshed.access_token);
-          uploadJson = (await uploadRes.json().catch(() => ({}))) as typeof uploadJson;
+          uploadJson = (await uploadRes
+            .json()
+            .catch(() => ({}))) as typeof uploadJson;
           tokensToSet = {
             access: refreshed.access_token,
             refresh: refreshed.refresh_token,
@@ -160,7 +164,11 @@ export async function POST(req: Request) {
       const cookieOpts = getAuthCookieOptions(COOKIE_MAX_AGE);
       res.cookies.set("directus_token", tokensToSet.access, cookieOpts);
       if (tokensToSet.refresh) {
-        res.cookies.set("directus_refresh_token", tokensToSet.refresh, cookieOpts);
+        res.cookies.set(
+          "directus_refresh_token",
+          tokensToSet.refresh,
+          cookieOpts,
+        );
       }
     }
     return res;
