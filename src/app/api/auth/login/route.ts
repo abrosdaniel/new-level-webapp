@@ -17,7 +17,13 @@ export async function POST(req: Request) {
       email?: string;
       password?: string;
     };
-    if (!email || !password || !url) {
+    if (!url) {
+      return NextResponse.json(
+        { error: "NEXT_PUBLIC_DIRECTUS_URL не настроен на сервере" },
+        { status: 500 },
+      );
+    }
+    if (!email || !password) {
       return NextResponse.json(
         { error: "email and password required" },
         { status: 400 },
@@ -50,6 +56,7 @@ export async function POST(req: Request) {
     }
 
     const res = NextResponse.json({ user });
+    res.headers.set("Cache-Control", "no-store, no-cache, must-revalidate");
     const cookieOpts = getAuthCookieOptions(COOKIE_MAX_AGE);
     res.cookies.set("directus_token", token!, cookieOpts);
     if (refreshToken) {

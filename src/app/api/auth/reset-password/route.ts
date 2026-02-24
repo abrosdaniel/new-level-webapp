@@ -9,8 +9,6 @@ import {
 const url = process.env.NEXT_PUBLIC_DIRECTUS_URL;
 const appUrl = process.env.NEXT_PUBLIC_APP_URL;
 
-const resetUrl = `${appUrl}/reset-password`;
-
 type DirectusResetPayload = {
   scope?: string;
   iss?: string;
@@ -66,12 +64,24 @@ export async function POST(req: Request) {
     }
 
     const { email } = body;
-    if (!email || !url) {
+    if (!url) {
+      return NextResponse.json(
+        { error: "NEXT_PUBLIC_DIRECTUS_URL не настроен на сервере" },
+        { status: 500 },
+      );
+    }
+    if (!appUrl) {
+      return NextResponse.json(
+        { error: "NEXT_PUBLIC_APP_URL не настроен на сервере" },
+        { status: 500 },
+      );
+    }
+    if (!email || typeof email !== "string" || !email.trim()) {
       return NextResponse.json({ error: "Email обязателен" }, { status: 400 });
     }
 
     const client = createDirectus(url).with(rest());
-    await client.request(passwordRequest(email, resetUrl));
+    await client.request(passwordRequest(email, `${appUrl}/reset-password`));
     return NextResponse.json({ ok: true });
   } catch (err: unknown) {
     console.error("Reset password error:", err);
