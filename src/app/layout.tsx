@@ -6,6 +6,8 @@ import { fontJost } from "@/assets/fonts/fonts";
 
 import { Provider } from "@/app/provider";
 
+const appUrl = process.env.NEXT_PUBLIC_APP_URL || "https://localhost";
+
 export const metadata: Metadata = {
   title: "New Level",
   description: "Приложение с тренировками от Александры Бальман",
@@ -13,7 +15,7 @@ export const metadata: Metadata = {
   generator: "Next.js",
   creator: "Alexander Balman",
   publisher: "Alexander Balman",
-  metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL ?? ""),
+  metadataBase: new URL(appUrl),
   icons: {
     icon: "/assets/logo.jpeg",
     shortcut: "/assets/logo.jpeg",
@@ -23,11 +25,11 @@ export const metadata: Metadata = {
     title: "New Level — приложение с тренировками от Александры Бальман",
     description:
       "Привет! Ты в New Level - приложении тренировок от Александры Бальман.Начинай свой путь к красивому и сильному телу прямо сейчас!",
-    url: process.env.NEXT_PUBLIC_APP_URL ?? "",
+    url: appUrl,
     siteName: "New Level",
     images: [
       {
-        url: `${process.env.NEXT_PUBLIC_APP_URL ?? ""}/assets/auth-hero.jpeg`,
+        url: `${appUrl}/assets/auth-hero.jpeg`,
         width: 736,
         height: 306,
         alt: "New Level — приложение с тренировками от Александры Бальман",
@@ -41,7 +43,7 @@ export const metadata: Metadata = {
     title: "New Level — приложение с тренировками от Александры Бальман",
     description:
       "Привет! Ты в New Level - приложении тренировок от Александры Бальман.Начинай свой путь к красивому и сильному телу прямо сейчас!",
-    images: [`${process.env.NEXT_PUBLIC_APP_URL ?? ""}/assets/auth-hero.jpeg`],
+    images: [`${appUrl}/assets/auth-hero.jpeg`],
   },
   robots: {
     index: false,
