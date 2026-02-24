@@ -1,0 +1,42 @@
+# Dependencies
+node_modules
+.pnp
+.pnp.*
+.yarn/*
+!.yarn/patches
+!.yarn/plugins
+!.yarn/releases
+!.yarn/versions
+
+# Build output
+.next
+out
+build
+
+# Testing
+coverage
+
+# Git
+.git
+.gitignore
+
+# IDE
+.cursor
+.vscode
+.idea
+*.swp
+*.swo
+
+# Misc
+.DS_Store
+*.pem
+*.log
+.env*
+!.env.example
+
+# Vercel
+.vercel
+
+# TypeScript
+*.tsbuildinfo
+next-env.d.ts
