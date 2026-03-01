@@ -1,6 +1,6 @@
 # syntax=docker/dockerfile:1
 # Builder stage
-FROM node:20-alpine AS builder
+FROM public.ecr.aws/docker/library/node:20-alpine AS builder
 
 WORKDIR /app
 
@@ -33,7 +33,7 @@ RUN npm run build
 RUN cp -r public .next/standalone/ && \
     cp -r .next/static .next/standalone/.next/
 
-FROM node:20-alpine AS runner
+FROM public.ecr.aws/docker/library/node:20-alpine AS runner
 
 WORKDIR /app
 
