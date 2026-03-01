@@ -1,17 +1,18 @@
 "use client";
 
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { toast } from "sonner";
 
 import { useAuth } from "@/hooks/useAuth";
+import { getSafeRedirect } from "@/lib/utils";
 
 import { Page, Link } from "@/components/Init";
 import { Photo } from "@/components/Photo";
-import { Button } from "@/components/custom-ui/button";
-import { Input, InputPassword } from "@/components/custom-ui/fields";
+import { Button } from "@/components/ds/button";
+import { Input, InputPassword } from "@/components/ds/fields";
 import {
   Form,
   FormControl,
@@ -33,7 +34,9 @@ type LoginFormData = z.infer<typeof loginSchema>;
 
 export default function LoginPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const { login } = useAuth();
+  const redirectTo = getSafeRedirect(searchParams.get("redirect"));
 
   const form = useForm<LoginFormData>({
     resolver: zodResolver(loginSchema),
@@ -45,7 +48,7 @@ export default function LoginPage() {
   const onSubmit = async (data: LoginFormData) => {
     try {
       await login({ email: data.email, password: data.password });
-      router.replace("/");
+      router.replace(redirectTo);
     } catch (err) {
       toast.error("Неверный email или пароль");
     }
@@ -53,9 +56,9 @@ export default function LoginPage() {
 
   return (
     <Page back={false} menu={false}>
-      <div className="mx-4 my-5 flex flex-col gap-6 lg:max-w-md lg:mx-auto">
+      <div className="flex flex-col gap-6 lg:max-w-md lg:mx-auto">
         <Photo
-          src="/assets/auth-hero.jpeg"
+          src="/assets/auth-hero.png"
           alt="Hero"
           className="aspect-video"
           fit="contain"
@@ -139,7 +142,11 @@ export default function LoginPage() {
               <p className="text-base text-center text-muted-foreground">
                 Еще нет аккаунта?{" "}
                 <Link
-                  href="/register"
+                  href={
+                    redirectTo !== "/"
+                      ? `/register?redirect=${encodeURIComponent(redirectTo)}`
+                      : "/register"
+                  }
                   className="text-sm text-secondary-foreground hover:underline"
                 >
                   Зарегистрироваться

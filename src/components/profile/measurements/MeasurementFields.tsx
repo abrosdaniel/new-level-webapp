@@ -7,7 +7,7 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import { Input } from "@/components/custom-ui/fields";
+import { Input } from "@/components/ds/fields";
 import type { UseFormReturn } from "react-hook-form";
 
 const FIELD_NAMES = [
@@ -47,7 +47,12 @@ const FIELDS: Array<{
     step: "0.01",
     placeholder: "50",
   },
-  { name: "arm_left", label: "Левая рука, см", step: "0.01", placeholder: "30" },
+  {
+    name: "arm_left",
+    label: "Левая рука, см",
+    step: "0.01",
+    placeholder: "30",
+  },
   {
     name: "arm_right",
     label: "Правая рука, см",

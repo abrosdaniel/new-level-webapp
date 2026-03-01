@@ -16,7 +16,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { Button } from "@/components/custom-ui/button";
+import { Button } from "@/components/ds/button";
 import {
   Form,
   FormControl,
@@ -25,7 +25,7 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import { Input, InputDate, RadioGroup } from "@/components/custom-ui/fields";
+import { Input, InputDate, RadioGroup } from "@/components/ds/fields";
 import { Spinner } from "@/components/ui/spinner";
 
 import { PencilLine } from "@/assets/icons/App";

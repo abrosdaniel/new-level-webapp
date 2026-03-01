@@ -9,7 +9,7 @@ import { toast } from "sonner";
 import { Page, Link, usePlatform } from "@/components/Init";
 import { Notice } from "@/components/Notice";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
-import { Button } from "@/components/custom-ui/button";
+import { Button } from "@/components/ds/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import EditProfile from "@/components/profile/EditProfile";
 import Payments from "@/components/profile/Payments";

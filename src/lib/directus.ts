@@ -9,7 +9,6 @@ import {
 const url = process.env.NEXT_PUBLIC_DIRECTUS_URL;
 const staticTokenValue = process.env.DIRECTUS_TOKEN;
 
-/** Запрос с токеном администратора (DIRECTUS_TOKEN) */
 export function getDirectusAdmin() {
   if (!url || !staticTokenValue) {
     throw new Error(
@@ -19,7 +18,6 @@ export function getDirectusAdmin() {
   return createDirectus(url).with(staticToken(staticTokenValue)).with(rest());
 }
 
-/** Запрос с токеном пользователя (directus_token из cookies) */
 export async function getDirectusUser(accessToken: string) {
   if (!url) {
     throw new Error("DIRECTUS: missing NEXT_PUBLIC_DIRECTUS_URL");
@@ -29,7 +27,6 @@ export async function getDirectusUser(accessToken: string) {
   return client;
 }
 
-/** Публичный запрос, без токена */
 export function getDirectusPublic() {
   if (!url) {
     throw new Error("DIRECTUS: missing NEXT_PUBLIC_DIRECTUS_URL");

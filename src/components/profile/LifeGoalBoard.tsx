@@ -20,8 +20,8 @@ import {
   FormControl,
   FormMessage,
 } from "@/components/ui/form";
-import { Button } from "@/components/custom-ui/button";
-import { RadioGroup } from "@/components/custom-ui/fields";
+import { Button } from "@/components/ds/button";
+import { RadioGroup } from "@/components/ds/fields";
 import { ChevronRightIcon, ArrowRightIcon } from "lucide-react";
 import { Spinner } from "@/components/ui/spinner";
 

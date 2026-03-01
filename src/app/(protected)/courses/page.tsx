@@ -24,7 +24,7 @@ export default function CoursesPage() {
     collection: "courses",
     query: {
       fields: ["*", "weeks.*"],
-      filter: { status: { _eq: "open" } },
+      filter: { status: { _in: ["open", "close"] } },
       sort: { sort: { _asc: true } },
     },
   });

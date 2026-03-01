@@ -13,14 +13,14 @@ import {
   type MouseEventHandler,
   type JSX,
 } from "react";
-import { useRouter, usePathname } from "next/navigation";
+import { useRouter, usePathname, useSearchParams } from "next/navigation";
 import {
   init,
   backButton,
   retrieveRawInitData,
-  retrieveLaunchParams,
   openLink,
 } from "@tma.js/sdk-react";
+import { getSafeRedirect } from "@/lib/utils";
 import {
   type LinkProps as NextLinkProps,
   default as NextLink,
@@ -130,32 +130,21 @@ function tryDetectPlatform(): Platform {
   return "web";
 }
 
-function getStartAppPath(): string | null {
-  let startParam: string | null = null;
-  try {
-    const params = retrieveLaunchParams();
-    startParam =
-      (params as { start_param?: string }).start_param ??
-      (params as { tgWebAppStartParam?: string }).tgWebAppStartParam ??
-      null;
-  } catch {
-    if (typeof window !== "undefined") {
-      const hash = window.location.hash.slice(1);
-      startParam = new URLSearchParams(hash).get("tgWebAppStartParam");
-    }
-  }
-  return startParam ? `/${startParam}` : null;
+/** Целевая страница после авторизации. */
+function getIntendedPath(pathname: string | null): string {
+  return pathname || "/";
 }
 
 export function InitProvider({ children }: { children: ReactNode }) {
   const router = useRouter();
   const pathname = usePathname();
+  const searchParams = useSearchParams();
   const [platform, setPlatform] = useState<Platform | null>(null);
   const { isAuthenticated, loginTelegram } = useAuth();
   const { user, isLoading, refetch } = useUser();
   const telegramAttempted = useRef(false);
-  const startAppPath = useRef<string | null>(null);
   const [telegramAuthPending, setTelegramAuthPending] = useState(false);
+  const redirectAfterAuth = getSafeRedirect(searchParams.get("redirect"));
 
   const isAuthPath = useMemo(() => {
     if (!pathname) return false;
@@ -173,16 +162,10 @@ export function InitProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     const detected = tryDetectPlatform();
     setPlatform(detected);
-    if (detected === "telegram") {
-      startAppPath.current = getStartAppPath();
-    }
 
     const t = setTimeout(() => {
       const retry = tryDetectPlatform();
       setPlatform((prev) => (prev === "web" ? retry : prev));
-      if (retry === "telegram" && !startAppPath.current) {
-        startAppPath.current = getStartAppPath();
-      }
     }, 300);
 
     return () => clearTimeout(t);
@@ -195,7 +178,8 @@ export function InitProvider({ children }: { children: ReactNode }) {
       platform === "telegram" &&
       AUTH_PATHS_WEB.some((p) => pathname?.startsWith(p))
     ) {
-      router.replace("/tg-login");
+      const redirect = getIntendedPath(pathname);
+      router.replace(`/tg-login?redirect=${encodeURIComponent(redirect)}`);
       return;
     }
 
@@ -211,23 +195,13 @@ export function InitProvider({ children }: { children: ReactNode }) {
     }
 
     if (isAuthenticated && isAuthPath) {
-      router.replace(startAppPath.current ?? "/");
-      return;
-    }
-
-    if (
-      isAuthenticated &&
-      platform === "telegram" &&
-      startAppPath.current &&
-      pathname === "/"
-    ) {
-      const target = startAppPath.current;
-      startAppPath.current = null;
-      router.replace(target);
+      router.replace(redirectAfterAuth);
       return;
     }
 
     if (!isAuthenticated && !isAuthPath && !isPublicPath) {
+      const intendedPath = getIntendedPath(pathname);
+      const redirectParam = `redirect=${encodeURIComponent(intendedPath)}`;
       if (platform === "telegram" && !telegramAttempted.current) {
         telegramAttempted.current = true;
         setTelegramAuthPending(true);
@@ -236,26 +210,25 @@ export function InitProvider({ children }: { children: ReactNode }) {
           if (initData) {
             loginTelegram(initData)
               .then(() => {
-                const target = startAppPath.current ?? "/";
                 const doRedirect = () => {
-                  if (target !== "/") router.replace(target);
+                  router.replace(intendedPath);
                 };
                 setTimeout(() => refetch().then(doRedirect), 200);
               })
               .catch(() => {
-                router.replace("/tg-login");
+                router.replace(`/tg-login?${redirectParam}`);
               })
               .finally(() => setTelegramAuthPending(false));
           } else {
             setTelegramAuthPending(false);
-            router.replace("/tg-login");
+            router.replace(`/tg-login?${redirectParam}`);
           }
         } catch {
           setTelegramAuthPending(false);
-          router.replace("/tg-login");
+          router.replace(`/tg-login?${redirectParam}`);
         }
       } else if (platform === "web") {
-        router.replace("/login");
+        router.replace(`/login?${redirectParam}`);
       }
     }
   }, [
@@ -268,6 +241,7 @@ export function InitProvider({ children }: { children: ReactNode }) {
     router,
     loginTelegram,
     refetch,
+    redirectAfterAuth,
   ]);
 
   const showLoading =

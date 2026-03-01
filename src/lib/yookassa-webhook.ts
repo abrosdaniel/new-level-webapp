@@ -1,8 +1,3 @@
-/**
- * Проверка IP для webhook ЮКасса.
- * Документация: https://yookassa.ru/developers/using-api/webhooks
- */
-
 const YOOKASSA_IP_RANGES_IPV4 = [
   "77.75.154.128/25",
   "77.75.156.35/32",

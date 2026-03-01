@@ -1,7 +1,7 @@
 "use client";
 
 import { Page, Link } from "@/components/Init";
-import { Button } from "@/components/custom-ui/button";
+import { Button } from "@/components/ds/button";
 
 import { ChevronRightIcon } from "lucide-react";
 

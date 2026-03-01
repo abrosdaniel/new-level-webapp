@@ -8,7 +8,7 @@ import { Page, Link } from "@/components/Init";
 import UserHeader from "@/components/UserHeader";
 import { Skeleton } from "@/components/ui/skeleton";
 import RecomendateFeed from "@/components/home/RecomendateFeed";
-import { Button } from "@/components/ui/button";
+import { Button } from "@/components/ds/button";
 
 import {
   HomeDumbbell,

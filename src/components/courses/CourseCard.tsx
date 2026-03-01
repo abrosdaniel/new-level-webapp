@@ -18,7 +18,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { Button } from "@/components/custom-ui/button";
+import { Button } from "@/components/ds/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { WYSIWYG } from "@/components/WYSIWYG";
 
@@ -41,6 +41,8 @@ function CourseCard({
   brief_description,
   description,
   weeks,
+  status,
+  subscription_price,
 }: Course) {
   const router = useRouter();
   const { user, refetch } = useUser();
@@ -71,6 +73,8 @@ function CourseCard({
     });
   }, [user?.subscriptions, id]);
 
+  const canBuy = status !== "close" && !isSubscribed;
+
   const handleCardClick = useCallback(() => {
     if (!isSubscribed) setDialogOpen(true);
     else if (!isStarted)
@@ -78,7 +82,7 @@ function CourseCard({
         `Курс "${title}" откроется ${formatDate(date_start, "dd.MM.yyyy")}`,
       );
     else router.push(`/courses/${id}`);
-  }, [isSubscribed, isStarted]);
+  }, [isSubscribed, isStarted, date_start, id, router, title]);
 
   const handleBuy = useCallback(async () => {
     setIsPayLoading(true);
@@ -109,7 +113,9 @@ function CourseCard({
         window.location.href = url;
       }
     } catch (e) {
-      console.error(e);
+      toast.error(
+        e instanceof Error ? e.message : "Ошибка при оформлении оплаты",
+      );
       setIsPayLoading(false);
     }
   }, [id, platform, refetch]);
@@ -155,7 +161,11 @@ function CourseCard({
                 </div>
               ))}
             <div className="absolute bottom-0 left-0 right-0 p-2.5 flex flex-row items-center justify-between w-full z-20">
-              {!isSubscribed ? (
+              {status === "close" && !isSubscribed ? (
+                <div className="p-2 bg-background/50 rounded-full backdrop-blur-sm text-sm leading-[1.15] font-normal text-white">
+                  курс временно недоступен
+                </div>
+              ) : status !== "close" && !isSubscribed ? (
                 <div className="p-2 bg-background/50 rounded-full backdrop-blur-sm inline-flex items-center gap-1.5 text-sm leading-[1.15] font-normal text-white">
                   нет подписки{" "}
                   <Info className="size-4 text-secondary-foreground" />
@@ -167,9 +177,12 @@ function CourseCard({
               ) : (
                 <div />
               )}
-              {!isSubscribed ? (
+              {canBuy ? (
                 <div className="p-2.5 bg-background/50 rounded-full backdrop-blur-sm inline-flex items-center gap-1.5 text-sm leading-[1.15] font-normal text-white">
-                  Купить
+                  Купить{" "}
+                  <span className="text-secondary-foreground">
+                    {Number(subscription_price)} ₽
+                  </span>
                   <ArrowUpRight className="size-4 text-secondary-foreground" />
                 </div>
               ) : (
@@ -216,17 +229,33 @@ function CourseCard({
               />
             </div>
           </ScrollArea>
-          <Button
-            custom="grey"
-            size="lg"
-            type="button"
-            className="group"
-            disabled={isPayLoading}
-            onClick={handleBuy}
-          >
-            {isPayLoading ? "Оформляем оплату…" : "Купить"}
-            <ArrowRightIcon className="!size-5 text-secondary-foreground group-hover:text-[#8D8E90]" />
-          </Button>
+          {canBuy ? (
+            <Button
+              custom="grey"
+              size="lg"
+              type="button"
+              className="group"
+              disabled={isPayLoading}
+              onClick={handleBuy}
+            >
+              {isPayLoading ? (
+                "Оформляем оплату…"
+              ) : (
+                <>
+                  Купить{" "}
+                  <span className="text-secondary-foreground">
+                    {Number(subscription_price)} ₽/мес
+                  </span>
+                </>
+              )}
+              <ArrowRightIcon className="!size-5 text-secondary-foreground group-hover:text-[#8D8E90]" />
+            </Button>
+          ) : (
+            <p className="text-sm text-muted-foreground text-center py-2">
+              Курс закрыт для новых покупок. Доступ возможен при наличии
+              активной подписки.
+            </p>
+          )}
         </DialogContent>
       </Dialog>
     </>

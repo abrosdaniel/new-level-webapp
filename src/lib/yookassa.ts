@@ -1,8 +1,3 @@
-/**
- * YooKassa API client для создания платежей.
- * POST https://api.yookassa.ru/v3/payments
- */
-
 import type {
   YooKassaCreatePayload,
   YooKassaPaymentResponse,

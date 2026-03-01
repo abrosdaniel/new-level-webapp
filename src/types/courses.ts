@@ -1,6 +1,6 @@
 export interface Course {
   id: string | number;
-  status: "open" | "close";
+  status: "open" | "close" | "hidden";
   date_start: string;
   level: string;
   cover: string;

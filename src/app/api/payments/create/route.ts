@@ -79,13 +79,23 @@ export async function POST(req: Request) {
       if (agg.collection === "courses") {
         const course = (await client.request(
           readItem("courses", agg.id, {
-            fields: ["id", "title", "subscription_price"],
+            fields: ["id", "title", "subscription_price", "status"],
           }),
-        )) as { title?: string; subscription_price?: number } | null;
+        )) as {
+          title?: string;
+          subscription_price?: number;
+          status?: string;
+        } | null;
         if (!course) {
           return NextResponse.json(
             { error: `Course ${agg.id} not found` },
             { status: 404 },
+          );
+        }
+        if (course.status === "close") {
+          return NextResponse.json(
+            { error: "Курс закрыт для новых покупок" },
+            { status: 400 },
           );
         }
         const price = Number(course.subscription_price);

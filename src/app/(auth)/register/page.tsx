@@ -3,10 +3,11 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { useForm } from "react-hook-form";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { toast } from "sonner";
 import { useAuth } from "@/hooks/useAuth";
 import { useUser } from "@/hooks/useUser";
+import { getSafeRedirect } from "@/lib/utils";
 
 import { Page, Link } from "@/components/Init";
 import {
@@ -23,8 +24,8 @@ import {
   InputPassword,
   InputDate,
   RadioGroup,
-} from "@/components/custom-ui/fields";
-import { Button } from "@/components/custom-ui/button";
+} from "@/components/ds/fields";
+import { Button } from "@/components/ds/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Spinner } from "@/components/ui/spinner";
 
@@ -56,8 +57,10 @@ type RegisterFormData = z.infer<typeof registerSchema>;
 
 export default function Register() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const { register } = useAuth();
   const { refetch } = useUser();
+  const redirectTo = getSafeRedirect(searchParams.get("redirect"));
 
   const form = useForm<RegisterFormData>({
     resolver: zodResolver(registerSchema),
@@ -80,7 +83,7 @@ export default function Register() {
       await register(data);
       await refetch();
       toast.success("Успех! Добро пожаловать в New Level!");
-      router.push("/");
+      router.replace(redirectTo);
     } catch (error) {
       toast.error(
         error instanceof Error
@@ -92,7 +95,7 @@ export default function Register() {
 
   return (
     <Page back={false} menu={false}>
-      <div className="mx-4 my-5 flex flex-col gap-6 lg:max-w-md lg:mx-auto">
+      <div className="flex flex-col gap-6 lg:max-w-md lg:mx-auto">
         <div className="flex flex-col gap-3">
           <h1 className="text-2xl leading-[1.1] font-bold text-center uppercase">
             Добро пожаловать
@@ -104,7 +107,7 @@ export default function Register() {
           </p>
         </div>
         <Photo
-          src="/assets/auth-hero.jpeg"
+          src="/assets/auth-hero.png"
           alt="Hero"
           className="aspect-video"
           fit="contain"
@@ -318,7 +321,11 @@ export default function Register() {
               <p className="text-base text-center text-muted-foreground">
                 Уже есть аккаунт?{" "}
                 <Link
-                  href="/login"
+                  href={
+                    redirectTo !== "/"
+                      ? `/login?redirect=${encodeURIComponent(redirectTo)}`
+                      : "/login"
+                  }
                   className="text-sm text-secondary-foreground hover:underline"
                 >
                   Войти

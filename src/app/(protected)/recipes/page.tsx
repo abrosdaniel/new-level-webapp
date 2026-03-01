@@ -132,12 +132,7 @@ export default function Recipes() {
                   title: "Нет доступных рецептов",
                   description: (
                     <p className="text-base leading-[1.15] font-normal text-muted-foreground">
-                      Пока нет доступных рецептов. Доступ ко всем рецептам
-                      откроется
-                      <br />
-                      <span className="font-semibold text-secondary-foreground uppercase">
-                        9 марта
-                      </span>
+                      Пока нет доступных рецептов. Скоро они тут появятся!
                     </p>
                   ),
                 }}

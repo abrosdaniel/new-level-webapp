@@ -44,11 +44,7 @@ export default function Materials() {
               title: "Нет доступных видео",
               description: (
                 <p className="text-base leading-[1.15] font-normal text-muted-foreground">
-                  Пока нет доступных видео. Доступ ко всем видео откроется
-                  <br />
-                  <span className="font-semibold text-secondary-foreground uppercase">
-                    9 марта
-                  </span>
+                  Пока нет доступных видео. Скоро они тут появятся!
                 </p>
               ),
             }}

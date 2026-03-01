@@ -18,7 +18,7 @@ import { Page } from "@/components/Init";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Badge } from "@/components/ui/badge";
 import { WYSIWYG } from "@/components/WYSIWYG";
-import { Button } from "@/components/custom-ui/button";
+import { Button } from "@/components/ds/button";
 import { Notice } from "@/components/Notice";
 
 import { Clock } from "lucide-react";

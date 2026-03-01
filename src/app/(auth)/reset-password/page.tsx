@@ -17,8 +17,8 @@ import {
   FormControl,
   FormMessage,
 } from "@/components/ui/form";
-import { Button } from "@/components/custom-ui/button";
-import { Input, InputPassword } from "@/components/custom-ui/fields";
+import { Button } from "@/components/ds/button";
+import { Input, InputPassword } from "@/components/ds/fields";
 
 import { ArrowRight } from "lucide-react";
 
@@ -190,7 +190,7 @@ export default function ResetPasswordPage() {
 
   return (
     <Page back={false} menu={false}>
-      <div className="mx-4 my-5 flex flex-col gap-6 lg:max-w-md lg:mx-auto">
+      <div className="flex flex-col gap-6 lg:max-w-md lg:mx-auto">
         <h1 className="text-lg font-semibold uppercase">
           Восстановление пароля
         </h1>

@@ -5,6 +5,7 @@ import { format, isValid } from "date-fns";
 import { cn } from "@/lib/utils";
 import { usePlatform } from "@/components/Init";
 import { useUser } from "@/hooks/useUser";
+import { toast } from "sonner";
 
 import type { Subscription, Payment, User } from "@/types/user";
 
@@ -16,12 +17,12 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { Button } from "@/components/custom-ui/button";
+import { Button } from "@/components/ds/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Badge } from "@/components/ui/badge";
 import { Notice } from "../Notice";
-import { InputCopy } from "@/components/custom-ui/fields";
+import { InputCopy } from "@/components/ds/fields";
 import { Label } from "@/components/ui/label";
 
 import { Calendar } from "@/assets/icons/App";
@@ -71,7 +72,9 @@ function BuyButton({
             window.location.href = url;
           }
         } catch (e) {
-          console.error(e);
+          toast.error(
+            e instanceof Error ? e.message : "Ошибка при оформлении оплаты",
+          );
           setIsLoading(false);
         }
       }}
@@ -83,6 +86,7 @@ function BuyButton({
 
 export default function Payments({ user }: { user: User }) {
   const platform = usePlatform();
+  const { refetch } = useUser();
 
   const formatSafe = (value: string | null | undefined, fmt: string) => {
     const d = value ? new Date(value) : new Date(NaN);
@@ -97,26 +101,14 @@ export default function Payments({ user }: { user: User }) {
       );
   };
 
-  const CopyItem = ({
-    label,
-    value,
-    message,
-  }: {
-    label: string;
-    value: string;
-    message?: string;
-  }) => {
-    return (
-      <Label className="text-xs leading-[1.15] font-normal text-muted-foreground">
-        {label}
-        <InputCopy readOnly value={value} message={message} />
-      </Label>
-    );
-  };
-
   return (
     <Dialog>
-      <DialogTrigger asChild>
+      <DialogTrigger
+        asChild
+        onClick={() => {
+          refetch();
+        }}
+      >
         <Button
           custom="grey"
           type="button"
@@ -136,12 +128,14 @@ export default function Payments({ user }: { user: User }) {
           <div className="w-full flex justify-center">
             <TabsList className="rounded-xl p-0.5 h-auto bg-transparent border border-gray-200">
               <TabsTrigger
+                key="subscriptions"
                 value="subscriptions"
                 className="rounded-full px-2 py-1.5 text-sm leading-[1.15] font-normal text-black data-[state=active]:bg-secondary-foreground data-[state=active]:text-white"
               >
                 Подписки
               </TabsTrigger>
               <TabsTrigger
+                key="payments"
                 value="payments"
                 className="rounded-full px-2 py-1.5 text-sm leading-[1.15] font-normal text-black data-[state=active]:bg-secondary-foreground data-[state=active]:text-white"
               >
@@ -153,78 +147,81 @@ export default function Payments({ user }: { user: User }) {
             {user.subscriptions && user.subscriptions.length > 0 ? (
               <ScrollArea className="h-[500px]">
                 <div className="flex flex-col gap-4 w-full">
-                  {user.subscriptions.map((subscription: Subscription) => {
-                    return (
-                      <div
-                        key={subscription.id}
-                        className="flex flex-col bg-white p-4 rounded-xl"
+                  {user.subscriptions.map((subscription: Subscription, idx) => (
+                    <div
+                      key={subscription.id ?? `sub-${idx}`}
+                      className="flex flex-col bg-white p-4 rounded-xl"
+                    >
+                      <Badge
+                        variant="outline"
+                        className={cn(
+                          "gap-1 px-1 py-0.5 rounded-full w-fit mb-5 text-sm leading-[0.9] font-normal",
+                          isActive(subscription)
+                            ? "text-secondary-foreground border-secondary-foreground"
+                            : "text-red-500 border-red-500",
+                        )}
                       >
-                        <Badge
-                          variant="outline"
-                          className={cn(
-                            "gap-1 px-1 py-0.5 rounded-full w-fit mb-5 text-sm leading-[0.9] font-normal",
-                            isActive(subscription)
-                              ? "text-secondary-foreground border-secondary-foreground"
-                              : "text-red-500 border-red-500",
-                          )}
-                        >
-                          {isActive(subscription) ? (
-                            <>
-                              <CircleCheck
-                                data-icon="inline-start"
-                                className="!size-4"
-                              />
-                              Подписка активна до{" "}
-                              {formatSafe(
-                                subscription.date_expiration,
-                                "dd.MM.yyyy",
-                              )}
-                            </>
-                          ) : (
-                            <>
-                              <CircleX
-                                data-icon="inline-start"
-                                className="!size-4"
-                              />
-                              Подписка истекла{" "}
-                              {formatSafe(
-                                subscription.date_expiration,
-                                "dd.MM.yyyy",
-                              )}
-                            </>
-                          )}
-                        </Badge>
-                        <div className="flex flex-row items-center gap-2.5 mb-2.5">
-                          <h3 className="flex-grow text-sm leading-[1.15] font-medium uppercase line-clamp-1">
-                            {subscription.course?.title ?? "—"}
-                          </h3>
-                          <p className="flex-shrink-0 text-sm leading-[1.15] font-normal">
-                            {subscription.course?.subscription_price}{" "}
-                            {subscription.currency}/мес
-                          </p>
-                        </div>
-                        {subscription.course ? (
-                          <BuyButton
-                            courseId={subscription.course.id}
-                            platform={platform}
-                            label={
-                              isActive(subscription) ? (
-                                <>
-                                  Продлить подписку
-                                  <ArrowRightIcon className="!size-5 text-secondary-foreground group-hover:text-gray-400 -rotate-45" />
-                                </>
-                              ) : (
-                                <>
-                                  Купить подписку
-                                  <ArrowRightIcon className="!size-5 text-secondary-foreground group-hover:text-gray-400 -rotate-45" />
-                                </>
-                              )
-                            }
-                          />
-                        ) : null}
+                        {isActive(subscription) ? (
+                          <>
+                            <CircleCheck
+                              data-icon="inline-start"
+                              className="!size-4"
+                            />
+                            Подписка активна до{" "}
+                            {formatSafe(
+                              subscription.date_expiration,
+                              "dd.MM.yyyy",
+                            )}
+                          </>
+                        ) : (
+                          <>
+                            <CircleX
+                              data-icon="inline-start"
+                              className="!size-4"
+                            />
+                            Подписка истекла{" "}
+                            {formatSafe(
+                              subscription.date_expiration,
+                              "dd.MM.yyyy",
+                            )}
+                          </>
+                        )}
+                      </Badge>
+                      <div className="flex flex-row items-center gap-2.5 mb-2.5">
+                        <h3 className="flex-grow text-sm leading-[1.15] font-medium uppercase line-clamp-1">
+                          {subscription.course?.title ?? "—"}
+                        </h3>
+                        <p className="flex-shrink-0 text-sm leading-[1.15] font-normal">
+                          {subscription.course?.subscription_price}{" "}
+                          {subscription.currency}/мес
+                        </p>
                       </div>
-                    );
-                  })}
+                      {subscription.course &&
+                      subscription.course.status !== "close" ? (
+                        <BuyButton
+                          courseId={subscription.course.id}
+                          platform={platform}
+                          label={
+                            isActive(subscription) ? (
+                              <>
+                                Продлить подписку
+                                <ArrowRightIcon className="!size-5 text-secondary-foreground group-hover:text-gray-400 -rotate-45" />
+                              </>
+                            ) : (
+                              <>
+                                Купить подписку
+                                <ArrowRightIcon className="!size-5 text-secondary-foreground group-hover:text-gray-400 -rotate-45" />
+                              </>
+                            )
+                          }
+                        />
+                      ) : subscription.course?.status === "close" ? (
+                        <p className="text-sm text-muted-foreground">
+                          Курс закрыт для новых покупок
+                        </p>
+                      ) : null}
+                    </div>
+                  ))}
                 </div>
               </ScrollArea>
             ) : (
@@ -254,9 +251,9 @@ export default function Payments({ user }: { user: User }) {
             {user.payments && user.payments.length > 0 ? (
               <ScrollArea className="h-[500px]">
                 <div className="flex flex-col gap-4 w-full">
-                  {user.payments.map((payment: Payment) => (
+                  {user.payments.map((payment: Payment, idx) => (
                     <div
-                      key={payment.id}
+                      key={payment.id ?? `pay-${idx}`}
                       className="flex flex-col bg-white p-4 rounded-xl"
                     >
                       <div className="grid grid-cols-2">

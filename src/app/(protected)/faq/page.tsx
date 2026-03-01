@@ -10,7 +10,7 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion";
 import { WYSIWYG } from "@/components/WYSIWYG";
-import { Button } from "@/components/custom-ui/button";
+import { Button } from "@/components/ds/button";
 
 export default function FAQ() {
   const { data, isLoading } = useData<
