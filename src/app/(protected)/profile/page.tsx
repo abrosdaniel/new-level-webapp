@@ -16,10 +16,6 @@ import Payments from "@/components/profile/Payments";
 import MeasurementsBoard from "@/components/profile/measurements/MeasurementsBoard";
 import KcalBoard from "@/components/profile/KcalBoard";
 import LifeGoalBoard from "@/components/profile/LifeGoalBoard";
-import {
-  ConnectTelegram,
-  DisconnectTelegram,
-} from "@/components/profile/ConnectTelegram";
 
 import { QuestionMark, Measurements } from "@/assets/icons/App";
 import { Loader2, LogOut } from "lucide-react";
@@ -131,7 +127,6 @@ export default function Profile() {
             <p className="text-base leading-[1] font-medium text-center text-muted-foreground mb-2.5">
               {user.email}
             </p>
-            <ConnectTelegram user={user} />
             <Payments user={user} />
             <Link href="/profile/measurements" className="w-full">
               <Button
@@ -166,7 +161,6 @@ export default function Profile() {
             >
               Правовые документы
             </Link>
-            <DisconnectTelegram user={user} />
           </div>
         ) : (
           <Notice

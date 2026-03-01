@@ -6,8 +6,8 @@ export async function POST() {
   const clearOpts = getAuthCookieOptions(0);
 
   res.cookies.set(getCookieName(), "", clearOpts);
-  res.cookies.set("directus_token", "", clearOpts);
-  res.cookies.set("directus_refresh_token", "", clearOpts);
+  res.cookies.set("access_token", "", clearOpts);
+  res.cookies.set("refresh_token", "", clearOpts);
 
   return res;
 }

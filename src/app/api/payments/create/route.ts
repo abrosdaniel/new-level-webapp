@@ -19,7 +19,7 @@ type CartItem = {
 async function getUserId(): Promise<string> {
   const cookieStore = await cookies();
   const authToken = cookieStore.get(getCookieName())?.value;
-  const directusToken = cookieStore.get("directus_token")?.value;
+  const directusToken = cookieStore.get("access_token")?.value;
 
   if (authToken) {
     const payload = await verifyToken(authToken);

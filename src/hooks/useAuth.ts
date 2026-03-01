@@ -2,6 +2,7 @@
 
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 
+import type { User } from "@/types/user";
 import { useUser } from "./useUser";
 
 export function useAuth() {
@@ -9,23 +10,28 @@ export function useAuth() {
   const userData = useUser();
 
   const registerMutation = useMutation({
-    mutationFn: async (body: {
-      first_name: string;
-      last_name: string;
-      birthday: Date;
-      gender: "male" | "female";
-      email: string;
-      password: string;
-      confirm_password: string;
-      terms: boolean;
-    }) => {
-      const { confirm_password: _, terms: __, ...payload } = body;
+    mutationFn: async (
+      body: {
+        first_name: string;
+        last_name: string;
+        birthday: Date;
+        gender: "male" | "female";
+        email: string;
+        password: string;
+        confirm_password: string;
+        terms: boolean;
+      } & { platform?: "web" | "telegram"; initData?: string },
+    ) => {
+      const { confirm_password: _, terms: __, platform, initData, ...payload } =
+        body;
       const res = await fetch("/api/auth/register", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           ...payload,
           birthday: payload.birthday.toISOString().split("T")[0],
+          ...(platform && { platform }),
+          ...(initData && { initData }),
         }),
         credentials: "include",
       });
@@ -33,15 +39,25 @@ export function useAuth() {
         const data = await res.json().catch(() => ({}));
         throw new Error(data?.error || "Register failed");
       }
-      return res.json();
+      const data = (await res.json()) as { user: User };
+      return data;
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["user"] });
+    onSuccess: (data) => {
+      if (data?.user) {
+        queryClient.setQueryData(["user"], { user: data.user });
+      } else {
+        queryClient.invalidateQueries({ queryKey: ["user"] });
+      }
     },
   });
 
   const loginMutation = useMutation({
-    mutationFn: async (body: { email: string; password: string }) => {
+    mutationFn: async (
+      body: {
+        email: string;
+        password: string;
+      } & { platform?: "web" | "telegram"; initData?: string },
+    ) => {
       const res = await fetch("/api/auth/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -52,10 +68,15 @@ export function useAuth() {
         const data = await res.json().catch(() => ({}));
         throw new Error(data?.error || "Login failed");
       }
-      return res.json();
+      const data = (await res.json()) as { user: User };
+      return data;
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["user"] });
+    onSuccess: (data) => {
+      if (data?.user) {
+        queryClient.setQueryData(["user"], { user: data.user });
+      } else {
+        queryClient.invalidateQueries({ queryKey: ["user"] });
+      }
     },
   });
 
@@ -86,6 +107,19 @@ export function useAuth() {
     },
   });
 
+  const checkEmailMutation = useMutation({
+    mutationFn: async (email: string) => {
+      const res = await fetch("/api/auth/check-email", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email }),
+      });
+      if (!res.ok) throw new Error("Check failed");
+      const data = (await res.json()) as { exists?: boolean };
+      return data.exists ?? false;
+    },
+  });
+
   const logoutMutation = useMutation({
     mutationFn: async () => {
       await fetch("/api/auth/logout", {
@@ -103,6 +137,7 @@ export function useAuth() {
     register: registerMutation.mutateAsync,
     login: loginMutation.mutateAsync,
     loginTelegram: telegramAuthMutation.mutateAsync,
+    checkEmail: checkEmailMutation.mutateAsync,
     logout: logoutMutation.mutateAsync,
   };
 }

@@ -10,6 +10,8 @@ export interface AuthPayload {
 }
 
 const EXPIRY = "7d";
+/** Directus refresh_token TTL по умолчанию (7 дней). Directus не возвращает expires для refresh. */
+export const REFRESH_TOKEN_COOKIE_MAX_AGE = 60 * 60 * 24 * 7;
 
 export async function createToken(payload: AuthPayload): Promise<string> {
   return new SignJWT({ ...payload })
@@ -30,6 +32,14 @@ export async function verifyToken(token: string): Promise<AuthPayload | null> {
 
 export function getCookieName() {
   return COOKIE_NAME;
+}
+
+/**
+ * Преобразует expires из Directus (мс или сек) в секунды для cookie.
+ * Directus возвращает expires в мс (900000 = 15 мин) или сек (900).
+ */
+export function directusExpiresToSeconds(expires: number): number {
+  return expires >= 86400 ? Math.floor(expires / 1000) : expires;
 }
 
 /** Опции для auth-кук. В production — SameSite=None для работы в Telegram iframe. */

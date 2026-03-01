@@ -6,8 +6,7 @@ import { fontJost } from "@/assets/fonts/fonts";
 
 import { Provider } from "@/app/provider";
 
-const appUrl =
-  process.env.NEXT_PUBLIC_APP_URL || "https://example.com";
+const appUrl = process.env.NEXT_PUBLIC_APP_URL || "https://example.com";
 
 export const metadata: Metadata = {
   title: "New Level",
@@ -46,10 +45,6 @@ export const metadata: Metadata = {
       "Привет! Ты в New Level - приложении тренировок от Александры Бальман.Начинай свой путь к красивому и сильному телу прямо сейчас!",
     images: [`${appUrl}/assets/auth-hero.jpeg`],
   },
-  robots: {
-    index: false,
-    follow: false,
-  },
 };
 
 export default async function RootLayout({
@@ -59,26 +54,6 @@ export default async function RootLayout({
 }) {
   return (
     <html lang="ru">
-      <head>
-        <script
-          dangerouslySetInnerHTML={{
-            __html: `
-(function(){
-  if (typeof window==='undefined'||!window.opener) return;
-  var m=location.hash.match(/[#?&]tgAuthResult=([A-Za-z0-9_=-]*)(?:$|&)/);
-  if(!m) return;
-  try {
-    var d=m[1].replace(/-/g,'+').replace(/_/g,'/');
-    var pad=d.length%4; if(pad>1) d+=Array(5-pad).join('=');
-    var data=JSON.parse(atob(d));
-    window.opener.postMessage(JSON.stringify({event:'auth_result',result:data}),'*');
-    window.close();
-  } catch(e){}
-})();
-            `.trim(),
-          }}
-        />
-      </head>
       <body
         className={`${fontJost.variable} pt-[var(--tg-safe-area-inset-top)] pb-[var(--tg-safe-area-inset-bottom)] pl-[var(--tg-safe-area-inset-left)] pr-[var(--tg-safe-area-inset-right)] font-jost antialiased`}
       >

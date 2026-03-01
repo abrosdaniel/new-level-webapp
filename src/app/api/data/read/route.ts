@@ -5,12 +5,20 @@ import {
   getDirectusPublic,
   getDirectusUser,
 } from "@/lib/directus";
-import { getValidDirectusToken, refreshDirectusTokens } from "@/lib/directus-auth";
-import { verifyToken, getCookieName, getAuthCookieOptions } from "@/lib/auth";
+import {
+  getValidDirectusToken,
+  refreshDirectusTokens,
+  type DirectusCookies,
+} from "@/lib/directus-auth";
+import {
+  verifyToken,
+  getCookieName,
+  getAuthCookieOptions,
+  directusExpiresToSeconds,
+  REFRESH_TOKEN_COOKIE_MAX_AGE,
+} from "@/lib/auth";
 import { isDirectusError } from "@directus/sdk";
 import { readItem, readItems, readSingleton } from "@directus/sdk";
-
-const COOKIE_MAX_AGE = 60 * 60 * 24 * 30;
 
 type ReadParams =
   | {
@@ -33,8 +41,12 @@ type ReadParams =
 function isTokenExpiredError(err: unknown): boolean {
   if (!isDirectusError(err)) return false;
   const msg = String((err as { message?: string }).message);
-  const errMsg = (err as { errors?: Array<{ message?: string }> }).errors?.[0]?.message;
-  return msg.includes("Token expired") || (errMsg?.includes("Token expired") ?? false);
+  const errMsg = (err as { errors?: Array<{ message?: string }> }).errors?.[0]
+    ?.message;
+  return (
+    msg.includes("Token expired") ||
+    (errMsg?.includes("Token expired") ?? false)
+  );
 }
 
 export async function POST(req: Request) {
@@ -46,12 +58,27 @@ export async function POST(req: Request) {
     const mode = tokenMode ?? "public";
     const cookieStore = await cookies();
     const authToken = cookieStore.get(getCookieName())?.value;
-    const directusToken = cookieStore.get("directus_token")?.value;
-    const directusRefreshToken = cookieStore.get("directus_refresh_token")?.value;
+    const directusToken = cookieStore.get("access_token")?.value;
+    const directusRefreshToken = cookieStore.get("refresh_token")?.value;
+
+    // access_token может отсутствовать (cookie истёк), пробуем refresh
+    let effectiveDirectusToken = directusToken;
+    let manualRefreshTokens: DirectusCookies | null = null;
+    if (!effectiveDirectusToken && directusRefreshToken?.trim()) {
+      const refreshed = await refreshDirectusTokens(directusRefreshToken);
+      if (refreshed) {
+        manualRefreshTokens = {
+          access: refreshed.access_token,
+          refresh: refreshed.refresh_token,
+          expires: refreshed.expires,
+        };
+        effectiveDirectusToken = refreshed.access_token;
+      }
+    }
 
     if (mode === "user") {
       const hasAuth =
-        (authToken && (await verifyToken(authToken))) || directusToken;
+        (authToken && (await verifyToken(authToken))) || effectiveDirectusToken;
       if (!hasAuth) {
         return NextResponse.json(
           { error: "Not authenticated" },
@@ -60,18 +87,21 @@ export async function POST(req: Request) {
       }
     }
 
-    let client: Awaited<ReturnType<typeof getDirectusUser>> | ReturnType<typeof getDirectusPublic> | ReturnType<typeof getDirectusAdmin>;
+    let client:
+      | Awaited<ReturnType<typeof getDirectusUser>>
+      | ReturnType<typeof getDirectusPublic>
+      | ReturnType<typeof getDirectusAdmin>;
     let tokenResult:
       | { token: string }
-      | { token: string; cookies: { access: string; refresh?: string } }
+      | { token: string; cookies: DirectusCookies }
       | undefined;
 
     if (mode === "public") {
       client = getDirectusPublic();
-    } else if (mode === "user" && directusToken) {
+    } else if (mode === "user" && effectiveDirectusToken) {
       tokenResult = await getValidDirectusToken(
-        directusToken,
-        directusRefreshToken,
+        effectiveDirectusToken,
+        manualRefreshTokens?.refresh ?? directusRefreshToken,
       );
       client = await getDirectusUser(tokenResult.token);
     } else {
@@ -89,7 +119,9 @@ export async function POST(req: Request) {
       }
       if (params.type === "items") {
         const { collection, query } = params;
-        const data = await client.request(readItems(collection as any, query as any));
+        const data = await client.request(
+          readItems(collection as any, query as any),
+        );
         return Array.isArray(data) ? data : ((data as any)?.data ?? []);
       }
       return null;
@@ -102,8 +134,7 @@ export async function POST(req: Request) {
       if (
         isTokenExpiredError(err) &&
         directusRefreshToken?.trim() &&
-        mode === "user" &&
-        directusToken
+        mode === "user"
       ) {
         const refreshed = await refreshDirectusTokens(directusRefreshToken);
         if (refreshed) {
@@ -113,13 +144,20 @@ export async function POST(req: Request) {
             params.type === "items"
               ? NextResponse.json(data)
               : NextResponse.json(data);
-          const cookieOpts = getAuthCookieOptions(COOKIE_MAX_AGE);
-          res.cookies.set("directus_token", refreshed.access_token, cookieOpts);
+          const accessMaxAge =
+            refreshed.expires != null
+              ? directusExpiresToSeconds(refreshed.expires)
+              : 900;
+          res.cookies.set(
+            "access_token",
+            refreshed.access_token,
+            getAuthCookieOptions(accessMaxAge),
+          );
           if (refreshed.refresh_token) {
             res.cookies.set(
-              "directus_refresh_token",
+              "refresh_token",
               refreshed.refresh_token,
-              cookieOpts,
+              getAuthCookieOptions(REFRESH_TOKEN_COOKIE_MAX_AGE),
             );
           }
           return res;
@@ -128,7 +166,11 @@ export async function POST(req: Request) {
       throw err;
     }
 
-    if (params.type !== "item" && params.type !== "singleton" && params.type !== "items") {
+    if (
+      params.type !== "item" &&
+      params.type !== "singleton" &&
+      params.type !== "items"
+    ) {
       return NextResponse.json(
         { error: "Invalid type: use 'item', 'items', or 'singleton'" },
         { status: 400 },
@@ -140,14 +182,24 @@ export async function POST(req: Request) {
         ? NextResponse.json(data)
         : NextResponse.json(data);
 
-    if (tokenResult && "cookies" in tokenResult) {
-      const cookieOpts = getAuthCookieOptions(COOKIE_MAX_AGE);
-      res.cookies.set("directus_token", tokenResult.cookies.access, cookieOpts);
-      if (tokenResult.cookies.refresh) {
+    const tokensToSet =
+      manualRefreshTokens ??
+      (tokenResult && "cookies" in tokenResult ? tokenResult.cookies : undefined);
+    if (tokensToSet) {
+      const accessMaxAge =
+        tokensToSet.expires != null
+          ? directusExpiresToSeconds(tokensToSet.expires)
+          : 900;
+      res.cookies.set(
+        "access_token",
+        tokensToSet.access,
+        getAuthCookieOptions(accessMaxAge),
+      );
+      if (tokensToSet.refresh) {
         res.cookies.set(
-          "directus_refresh_token",
-          tokenResult.cookies.refresh,
-          cookieOpts,
+          "refresh_token",
+          tokensToSet.refresh,
+          getAuthCookieOptions(REFRESH_TOKEN_COOKIE_MAX_AGE),
         );
       }
     }

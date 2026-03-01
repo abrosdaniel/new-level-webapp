@@ -6,6 +6,7 @@ const REFRESH_BEFORE_EXPIRY_SEC = 300;
 export async function refreshDirectusTokens(refreshToken: string): Promise<{
   access_token: string;
   refresh_token?: string;
+  expires?: number;
 } | null> {
   if (!url) return null;
   const baseUrl = url.replace(/\/$/, "");
@@ -18,9 +19,14 @@ export async function refreshDirectusTokens(refreshToken: string): Promise<{
     }),
   });
   const json = (await res.json().catch(() => ({}))) as {
-    data?: { access_token?: string; refresh_token?: string };
+    data?: {
+      access_token?: string;
+      refresh_token?: string;
+      expires?: number;
+    };
     access_token?: string;
     refresh_token?: string;
+    expires?: number;
     errors?: Array<{ message?: string }>;
   };
   const data = json?.data ?? json;
@@ -28,6 +34,7 @@ export async function refreshDirectusTokens(refreshToken: string): Promise<{
     return {
       access_token: data.access_token,
       refresh_token: data.refresh_token,
+      expires: data.expires ?? json.expires,
     };
   }
   if (!res.ok && process.env.NODE_ENV === "development") {
@@ -40,15 +47,21 @@ export async function refreshDirectusTokens(refreshToken: string): Promise<{
   return null;
 }
 
+export type DirectusCookies = {
+  access: string;
+  refresh?: string;
+  expires?: number;
+};
+
 export async function getValidDirectusToken(
   accessToken: string,
   refreshToken: string | undefined,
 ): Promise<
   | { token: string }
-  | { token: string; cookies: { access: string; refresh?: string } }
+  | { token: string; cookies: DirectusCookies }
 > {
   let token = accessToken;
-  let cookiesToSet: { access: string; refresh?: string } | undefined;
+  let cookiesToSet: DirectusCookies | undefined;
 
   try {
     const payload = decodeJwt(accessToken);
@@ -61,6 +74,7 @@ export async function getValidDirectusToken(
         cookiesToSet = {
           access: refreshed.access_token,
           refresh: refreshed.refresh_token,
+          expires: refreshed.expires,
         };
       }
     }

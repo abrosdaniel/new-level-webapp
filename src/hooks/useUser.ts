@@ -35,11 +35,11 @@ export function useUser() {
   const query = useQuery({
     queryKey: ["user"],
     queryFn: fetchUser,
-    retry: false,
+    retry: false, // 401 давал 4–8 запросов, CrowdSec банит
     staleTime: 1000 * 60 * 5,
-    refetchOnWindowFocus: true,
-    refetchOnMount: true,
-    refetchOnReconnect: true,
+    refetchOnWindowFocus: false, // при открытии в Telegram — лишние 401
+    refetchOnMount: false,
+    refetchOnReconnect: false,
     refetchInterval: 1000 * 60 * 15,
     refetchIntervalInBackground: true,
   });

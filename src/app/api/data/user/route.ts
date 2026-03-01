@@ -16,10 +16,15 @@ import {
   getValidDirectusToken,
   refreshDirectusTokens,
 } from "@/lib/directus-auth";
-import { verifyToken, getCookieName, getAuthCookieOptions } from "@/lib/auth";
+import {
+  verifyToken,
+  getCookieName,
+  getAuthCookieOptions,
+  directusExpiresToSeconds,
+  REFRESH_TOKEN_COOKIE_MAX_AGE,
+} from "@/lib/auth";
 
 const url = process.env.NEXT_PUBLIC_DIRECTUS_URL;
-const COOKIE_MAX_AGE = 60 * 60 * 24 * 30;
 
 const FIELDS = [
   "*",
@@ -50,7 +55,10 @@ async function fetchUserWithDirectusToken(
   refreshToken: string | undefined,
 ): Promise<
   | { user: unknown }
-  | { user: unknown; tokens: { access: string; refresh?: string } }
+  | {
+      user: unknown;
+      tokens: { access: string; refresh?: string; expires?: number };
+    }
 > {
   const tokenResult = await getValidDirectusToken(accessToken, refreshToken);
   const token = tokenResult.token;
@@ -93,6 +101,7 @@ async function fetchUserWithDirectusToken(
           tokens: {
             access: refreshed.access_token,
             refresh: refreshed.refresh_token,
+            expires: refreshed.expires,
           },
         };
       }
@@ -105,10 +114,8 @@ export async function GET() {
   try {
     const cookieStore = await cookies();
     const authToken = cookieStore.get(getCookieName())?.value;
-    const directusToken = cookieStore.get("directus_token")?.value;
-    const directusRefreshToken = cookieStore.get(
-      "directus_refresh_token",
-    )?.value;
+    const directusToken = cookieStore.get("access_token")?.value;
+    const directusRefreshToken = cookieStore.get("refresh_token")?.value;
 
     if (authToken) {
       const payload = await verifyToken(authToken);
@@ -143,21 +150,49 @@ export async function GET() {
       return NextResponse.json({ user });
     }
 
-    if (directusToken && url) {
+    // access_token может отсутствовать (cookie истёк), но refresh_token ещё валиден
+    let refreshedTokens: {
+      access: string;
+      refresh?: string;
+      expires?: number;
+    } | null = null;
+    let effectiveAccess = directusToken;
+    if (!effectiveAccess && directusRefreshToken?.trim() && url) {
+      const refreshed = await refreshDirectusTokens(directusRefreshToken);
+      if (refreshed) {
+        refreshedTokens = {
+          access: refreshed.access_token,
+          refresh: refreshed.refresh_token,
+          expires: refreshed.expires,
+        };
+        effectiveAccess = refreshed.access_token;
+      }
+    }
+
+    if (effectiveAccess && url) {
       const result = await fetchUserWithDirectusToken(
-        directusToken,
-        directusRefreshToken,
+        effectiveAccess,
+        refreshedTokens?.refresh ?? directusRefreshToken,
       );
 
       const res = NextResponse.json({ user: result.user });
-      if ("tokens" in result) {
-        const cookieOpts = getAuthCookieOptions(COOKIE_MAX_AGE);
-        res.cookies.set("directus_token", result.tokens.access, cookieOpts);
-        if (result.tokens.refresh) {
+      const tokensToSet =
+        refreshedTokens ?? ("tokens" in result ? result.tokens : undefined);
+      if (tokensToSet) {
+        const accessMaxAge =
+          tokensToSet.expires != null
+            ? directusExpiresToSeconds(tokensToSet.expires)
+            : 900;
+        res.cookies.set(
+          "access_token",
+          tokensToSet.access,
+          getAuthCookieOptions(accessMaxAge),
+        );
+        if (tokensToSet.refresh) {
           res.cookies.set(
-            "directus_refresh_token",
-            result.tokens.refresh,
-            cookieOpts,
+            "refresh_token",
+            tokensToSet.refresh,
+            getAuthCookieOptions(REFRESH_TOKEN_COOKIE_MAX_AGE),
           );
         }
       }
@@ -173,8 +208,8 @@ export async function GET() {
     );
     // Очищаем невалидные cookies при ошибке — чтобы клиент корректно редиректил на логин
     const cookieOpts = getAuthCookieOptions(0);
-    res.cookies.set("directus_token", "", cookieOpts);
-    res.cookies.set("directus_refresh_token", "", cookieOpts);
+    res.cookies.set("access_token", "", cookieOpts);
+    res.cookies.set("refresh_token", "", cookieOpts);
     return res;
   }
 }
@@ -190,10 +225,8 @@ export async function POST(req: Request) {
   try {
     const cookieStore = await cookies();
     const authToken = cookieStore.get(getCookieName())?.value;
-    const directusToken = cookieStore.get("directus_token")?.value;
-    const directusRefreshToken = cookieStore.get(
-      "directus_refresh_token",
-    )?.value;
+    let directusToken = cookieStore.get("access_token")?.value;
+    let directusRefreshToken = cookieStore.get("refresh_token")?.value;
 
     const body = (await req.json()) as Record<string, unknown>;
     const userBody: Record<string, unknown> = {};
@@ -279,9 +312,29 @@ export async function POST(req: Request) {
       return NextResponse.json({ user });
     }
 
-    if (directusToken) {
+    // access_token может отсутствовать (cookie истёк), пробуем refresh
+    let effectiveDirectusToken = directusToken;
+    let manualRefreshTokens: {
+      access: string;
+      refresh?: string;
+      expires?: number;
+    } | null = null;
+    if (!effectiveDirectusToken && directusRefreshToken?.trim() && url) {
+      const refreshed = await refreshDirectusTokens(directusRefreshToken);
+      if (refreshed) {
+        manualRefreshTokens = {
+          access: refreshed.access_token,
+          refresh: refreshed.refresh_token,
+          expires: refreshed.expires,
+        };
+        effectiveDirectusToken = refreshed.access_token;
+        directusRefreshToken = refreshed.refresh_token ?? directusRefreshToken;
+      }
+    }
+
+    if (effectiveDirectusToken) {
       const tokenResult = await getValidDirectusToken(
-        directusToken,
+        effectiveDirectusToken,
         directusRefreshToken,
       );
       const client = createDirectus(url)
@@ -304,18 +357,24 @@ export async function POST(req: Request) {
           : await client.request(readMe({ fields: FIELDS, deep: DEEP }));
 
       const res = NextResponse.json({ user });
-      if ("cookies" in tokenResult) {
-        const cookieOpts = getAuthCookieOptions(COOKIE_MAX_AGE);
+      const tokensToSet =
+        manualRefreshTokens ??
+        ("cookies" in tokenResult ? tokenResult.cookies : undefined);
+      if (tokensToSet) {
+        const accessMaxAge =
+          tokensToSet.expires != null
+            ? directusExpiresToSeconds(tokensToSet.expires)
+            : 900;
         res.cookies.set(
-          "directus_token",
-          tokenResult.cookies.access,
-          cookieOpts,
+          "access_token",
+          tokensToSet.access,
+          getAuthCookieOptions(accessMaxAge),
         );
-        if (tokenResult.cookies.refresh) {
+        if (tokensToSet.refresh) {
           res.cookies.set(
-            "directus_refresh_token",
-            tokenResult.cookies.refresh,
-            cookieOpts,
+            "refresh_token",
+            tokensToSet.refresh,
+            getAuthCookieOptions(REFRESH_TOKEN_COOKIE_MAX_AGE),
           );
         }
       }

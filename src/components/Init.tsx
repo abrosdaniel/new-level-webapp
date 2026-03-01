@@ -18,6 +18,7 @@ import {
   init,
   backButton,
   retrieveRawInitData,
+  retrieveLaunchParams,
   openLink,
 } from "@tma.js/sdk-react";
 import {
@@ -103,25 +104,15 @@ export function usePlatform() {
   return context ?? "web";
 }
 
-const AUTH_PATHS = ["/login", "/register", "/reset-password"] as const;
+const AUTH_PATHS_WEB = ["/login", "/register", "/reset-password"] as const;
+const AUTH_PATH_TELEGRAM = "/tg-login" as const;
 /** Префиксы путей без авторизации (/documents покрывает /documents/terms и т.д., /payment — результат оплаты) */
 const PUBLIC_PATH_PREFIXES = ["/documents", "/payment"] as const;
+
 const LOADING_MSG = {
   variant: "loading" as const,
   title: "Загрузка",
   description: "Проверяем подключение…",
-};
-const NOT_TELEGRAM_MSG = {
-  variant: "telegram" as const,
-  title: (
-    <span>
-      Приложение:
-      <br />
-      {process.env.NEXT_PUBLIC_APP_URL}
-    </span>
-  ),
-  description:
-    "Для входа через Telegram открой приложение в браузере и подключи Telegram к аккаунту New Level в настройках профиля",
 };
 
 function tryDetectPlatform(): Platform {
@@ -139,6 +130,23 @@ function tryDetectPlatform(): Platform {
   return "web";
 }
 
+function getStartAppPath(): string | null {
+  let startParam: string | null = null;
+  try {
+    const params = retrieveLaunchParams();
+    startParam =
+      (params as { start_param?: string }).start_param ??
+      (params as { tgWebAppStartParam?: string }).tgWebAppStartParam ??
+      null;
+  } catch {
+    if (typeof window !== "undefined") {
+      const hash = window.location.hash.slice(1);
+      startParam = new URLSearchParams(hash).get("tgWebAppStartParam");
+    }
+  }
+  return startParam ? `/${startParam}` : null;
+}
+
 export function InitProvider({ children }: { children: ReactNode }) {
   const router = useRouter();
   const pathname = usePathname();
@@ -146,13 +154,16 @@ export function InitProvider({ children }: { children: ReactNode }) {
   const { isAuthenticated, loginTelegram } = useAuth();
   const { user, isLoading, refetch } = useUser();
   const telegramAttempted = useRef(false);
-  const [telegramError, setTelegramError] = useState(false);
+  const startAppPath = useRef<string | null>(null);
   const [telegramAuthPending, setTelegramAuthPending] = useState(false);
 
-  const isAuthPath = useMemo(
-    () => AUTH_PATHS.some((p) => pathname?.startsWith(p)),
-    [pathname],
-  );
+  const isAuthPath = useMemo(() => {
+    if (!pathname) return false;
+    return (
+      AUTH_PATHS_WEB.some((p) => pathname.startsWith(p)) ||
+      pathname.startsWith(AUTH_PATH_TELEGRAM)
+    );
+  }, [pathname]);
 
   const isPublicPath = useMemo(
     () => PUBLIC_PATH_PREFIXES.some((p) => pathname?.startsWith(p)),
@@ -162,17 +173,33 @@ export function InitProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     const detected = tryDetectPlatform();
     setPlatform(detected);
+    if (detected === "telegram") {
+      startAppPath.current = getStartAppPath();
+    }
 
     const t = setTimeout(() => {
       const retry = tryDetectPlatform();
       setPlatform((prev) => (prev === "web" ? retry : prev));
+      if (retry === "telegram" && !startAppPath.current) {
+        startAppPath.current = getStartAppPath();
+      }
     }, 300);
 
     return () => clearTimeout(t);
   }, []);
 
   useEffect(() => {
-    if (platform === null || isLoading) return;
+    if (platform === null) return;
+
+    if (
+      platform === "telegram" &&
+      AUTH_PATHS_WEB.some((p) => pathname?.startsWith(p))
+    ) {
+      router.replace("/tg-login");
+      return;
+    }
+
+    if (isLoading) return;
 
     if (
       isAuthenticated &&
@@ -184,35 +211,48 @@ export function InitProvider({ children }: { children: ReactNode }) {
     }
 
     if (isAuthenticated && isAuthPath) {
-      router.replace("/");
+      router.replace(startAppPath.current ?? "/");
+      return;
+    }
+
+    if (
+      isAuthenticated &&
+      platform === "telegram" &&
+      startAppPath.current &&
+      pathname === "/"
+    ) {
+      const target = startAppPath.current;
+      startAppPath.current = null;
+      router.replace(target);
       return;
     }
 
     if (!isAuthenticated && !isAuthPath && !isPublicPath) {
       if (platform === "telegram" && !telegramAttempted.current) {
         telegramAttempted.current = true;
-        setTelegramError(false);
         setTelegramAuthPending(true);
         try {
           const initData = retrieveRawInitData();
           if (initData) {
             loginTelegram(initData)
-              .then(() => refetch())
-              .catch((err: Error & { code?: string }) => {
-                if (err?.code === "USER_NOT_FOUND") {
-                  setTelegramError(true);
-                } else {
-                  router.replace("/register");
-                }
+              .then(() => {
+                const target = startAppPath.current ?? "/";
+                const doRedirect = () => {
+                  if (target !== "/") router.replace(target);
+                };
+                setTimeout(() => refetch().then(doRedirect), 200);
+              })
+              .catch(() => {
+                router.replace("/tg-login");
               })
               .finally(() => setTelegramAuthPending(false));
           } else {
             setTelegramAuthPending(false);
-            router.replace("/register");
+            router.replace("/tg-login");
           }
         } catch {
           setTelegramAuthPending(false);
-          router.replace("/register");
+          router.replace("/tg-login");
         }
       } else if (platform === "web") {
         router.replace("/login");
@@ -232,12 +272,11 @@ export function InitProvider({ children }: { children: ReactNode }) {
 
   const showLoading =
     platform === null ||
-    (isLoading && !isAuthPath && !isPublicPath && !telegramError) ||
+    (isLoading && !isAuthPath && !isPublicPath) ||
     telegramAuthPending ||
     (platform === "web" && !isAuthenticated && !isAuthPath && !isPublicPath);
 
   if (showLoading) return <Notice msg={LOADING_MSG} />;
-  if (telegramError) return <Notice msg={NOT_TELEGRAM_MSG} />;
 
   return (
     <PlatformContext.Provider value={platform}>

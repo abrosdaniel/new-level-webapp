@@ -1,14 +1,19 @@
 import { NextResponse } from "next/server";
 import { cookies } from "next/headers";
 import { isDirectusError } from "@directus/sdk";
-import { verifyToken, getCookieName, getAuthCookieOptions } from "@/lib/auth";
+import {
+  verifyToken,
+  getCookieName,
+  getAuthCookieOptions,
+  directusExpiresToSeconds,
+  REFRESH_TOKEN_COOKIE_MAX_AGE,
+} from "@/lib/auth";
 import {
   getValidDirectusToken,
   refreshDirectusTokens,
 } from "@/lib/directus-auth";
 
 const url = process.env.NEXT_PUBLIC_DIRECTUS_URL;
-const COOKIE_MAX_AGE = 60 * 60 * 24 * 30;
 
 /** Загрузка файла: accept (MIME через запятую), maxSize (байты). Возвращает { id } */
 export async function POST(req: Request) {
@@ -21,11 +26,14 @@ export async function POST(req: Request) {
 
   try {
     const cookieStore = await cookies();
-    let directusToken = cookieStore.get("directus_token")?.value;
-    const directusRefreshToken = cookieStore.get(
-      "directus_refresh_token",
-    )?.value;
+    let directusToken = cookieStore.get("access_token")?.value;
+    let directusRefreshToken = cookieStore.get("refresh_token")?.value;
     let useUserToken = false;
+    let tokensToSet: {
+      access: string;
+      refresh?: string;
+      expires?: number;
+    } | undefined;
 
     if (!directusToken) {
       const authToken = cookieStore.get(getCookieName())?.value;
@@ -39,6 +47,20 @@ export async function POST(req: Request) {
         }
         directusToken = process.env.DIRECTUS_TOKEN;
       }
+      // access_token cookie истёк — пробуем refresh
+      if (!directusToken && directusRefreshToken?.trim()) {
+        const refreshed = await refreshDirectusTokens(directusRefreshToken);
+        if (refreshed) {
+          directusToken = refreshed.access_token;
+          directusRefreshToken = refreshed.refresh_token ?? directusRefreshToken;
+          useUserToken = true;
+          tokensToSet = {
+            access: refreshed.access_token,
+            refresh: refreshed.refresh_token,
+            expires: refreshed.expires,
+          };
+        }
+      }
     } else {
       useUserToken = true;
     }
@@ -47,8 +69,7 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
     }
 
-    let tokensToSet: { access: string; refresh?: string } | undefined;
-    if (useUserToken && directusRefreshToken) {
+    if (useUserToken && directusRefreshToken && !tokensToSet) {
       const tokenResult = await getValidDirectusToken(
         directusToken,
         directusRefreshToken,
@@ -137,6 +158,7 @@ export async function POST(req: Request) {
           tokensToSet = {
             access: refreshed.access_token,
             refresh: refreshed.refresh_token,
+            expires: refreshed.expires,
           };
         }
       }
@@ -161,13 +183,20 @@ export async function POST(req: Request) {
 
     const res = NextResponse.json({ id: fileId });
     if (tokensToSet) {
-      const cookieOpts = getAuthCookieOptions(COOKIE_MAX_AGE);
-      res.cookies.set("directus_token", tokensToSet.access, cookieOpts);
+      const accessMaxAge =
+        tokensToSet.expires != null
+          ? directusExpiresToSeconds(tokensToSet.expires)
+          : 900;
+      res.cookies.set(
+        "access_token",
+        tokensToSet.access,
+        getAuthCookieOptions(accessMaxAge),
+      );
       if (tokensToSet.refresh) {
         res.cookies.set(
-          "directus_refresh_token",
+          "refresh_token",
           tokensToSet.refresh,
-          cookieOpts,
+          getAuthCookieOptions(REFRESH_TOKEN_COOKIE_MAX_AGE),
         );
       }
     }

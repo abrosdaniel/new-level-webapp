@@ -5,6 +5,7 @@ import {
   createToken,
   getCookieName,
   getAuthCookieOptions,
+  REFRESH_TOKEN_COOKIE_MAX_AGE,
 } from "@/lib/auth";
 
 const BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN;
@@ -64,7 +65,7 @@ export async function POST(req: Request) {
     res.cookies.set(
       getCookieName(),
       token,
-      getAuthCookieOptions(60 * 60 * 24 * 7),
+      getAuthCookieOptions(REFRESH_TOKEN_COOKIE_MAX_AGE),
     );
     return res;
   } catch (err: any) {

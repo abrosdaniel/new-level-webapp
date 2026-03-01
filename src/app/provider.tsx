@@ -4,7 +4,6 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 
 import { InitProvider } from "@/components/Init";
-import { TelegramAuthRedirectHandler } from "@/components/TelegramAuthRedirectHandler";
 import { Toaster } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 
@@ -13,7 +12,7 @@ const queryClient = new QueryClient({
     queries: {
       staleTime: 1000 * 60, // 1 минута
       gcTime: 1000 * 60 * 5, // 5 минут
-      refetchOnMount: true,
+      refetchOnMount: false, // true давало 8+ 401 при открытии tg-login (CrowdSec)
       refetchOnWindowFocus: true,
     },
   },
@@ -22,7 +21,6 @@ const queryClient = new QueryClient({
 export function Provider({ children }: { children: React.ReactNode }) {
   return (
     <QueryClientProvider client={queryClient}>
-      <TelegramAuthRedirectHandler />
       <InitProvider>
         <TooltipProvider>
           {children}

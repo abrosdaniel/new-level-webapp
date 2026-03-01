@@ -10,4 +10,4 @@
 - Анимации реализуем через `gsap`.
 - Для серверных запросов и кеширования используем `@tanstack/react-query`.
 - Следим за правилами ESLint и удаляем неиспользуемый код при изменениях.
-- Привязка Telegram: компонент `ConnectTelegram` (только на вебе, в Mini App скрыт). API `/api/auth/link-telegram`. `NEXT_PUBLIC_TELEGRAM_BOT_USERNAME` — для виджета (по умолчанию `newlevel_appbot`). Важно: домен приложения обязательно привязать в @BotFather через /setdomain, иначе виджет «Log in with Telegram» не отобразится.
+- CrowdSec: при использовании LePresidente/http-generic-401-bf 401 от `/api/data/user` (истёкшая сессия) могут давать ложные баны. В приложении отключён retry при 401. Для исключения пути на сервере — AppSec config с `RemoveInBandRuleByName` для путей `/api/data/user`, `/api/upload`.

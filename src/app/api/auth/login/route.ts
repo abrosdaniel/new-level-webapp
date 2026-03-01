@@ -1,22 +1,31 @@
 import { NextResponse } from "next/server";
-import { getAuthCookieOptions } from "@/lib/auth";
+import {
+  getAuthCookieOptions,
+  directusExpiresToSeconds,
+  REFRESH_TOKEN_COOKIE_MAX_AGE,
+} from "@/lib/auth";
 import {
   createDirectus,
   rest,
   authentication,
   readMe,
+  updateMe,
   isDirectusError,
 } from "@directus/sdk";
+import { validate, parse } from "@tma.js/init-data-node";
 
 const url = process.env.NEXT_PUBLIC_DIRECTUS_URL;
-const COOKIE_MAX_AGE = 60 * 60 * 24 * 30; // 30 дней
+const BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN;
 
 export async function POST(req: Request) {
   try {
-    const { email, password } = (await req.json()) as {
+    const body = (await req.json()) as {
       email?: string;
       password?: string;
+      platform?: "web" | "telegram";
+      initData?: string;
     };
+    const { email, password, platform, initData } = body;
     if (!url) {
       return NextResponse.json(
         { error: "NEXT_PUBLIC_DIRECTUS_URL не настроен на сервере" },
@@ -45,7 +54,7 @@ export async function POST(req: Request) {
     }
 
     const me = await client.request(readMe());
-    const user = me as any;
+    const user = me as { id?: string; status?: string };
 
     if (user?.status === "blocked") {
       await client.logout();
@@ -55,12 +64,33 @@ export async function POST(req: Request) {
       );
     }
 
+    let telegramId: string | undefined;
+    if (platform === "telegram" && initData && BOT_TOKEN && user?.id) {
+      try {
+        validate(initData, BOT_TOKEN, { expiresIn: 3600 });
+        const data = parse(initData);
+        telegramId = data.user?.id?.toString();
+      } catch {
+        // initData invalid — не блокируем вход
+      }
+    }
+    if (telegramId) {
+      await client.request(updateMe({ telegram_id: telegramId } as object));
+    }
+
     const res = NextResponse.json({ user });
     res.headers.set("Cache-Control", "no-store, no-cache, must-revalidate");
-    const cookieOpts = getAuthCookieOptions(COOKIE_MAX_AGE);
-    res.cookies.set("directus_token", token!, cookieOpts);
+    const accessMaxAge =
+      authData?.expires != null
+        ? directusExpiresToSeconds(authData.expires)
+        : 900;
+    res.cookies.set("access_token", token!, getAuthCookieOptions(accessMaxAge));
     if (refreshToken) {
-      res.cookies.set("directus_refresh_token", refreshToken, cookieOpts);
+      res.cookies.set(
+        "refresh_token",
+        refreshToken,
+        getAuthCookieOptions(REFRESH_TOKEN_COOKIE_MAX_AGE),
+      );
     }
     return res;
   } catch (err) {

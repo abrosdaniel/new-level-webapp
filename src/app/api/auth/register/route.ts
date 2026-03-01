@@ -7,12 +7,18 @@ import {
   createUser,
   isDirectusError,
 } from "@directus/sdk";
+import { validate, parse } from "@tma.js/init-data-node";
 import { getDirectusAdmin } from "@/lib/directus";
-import { getAuthCookieOptions } from "@/lib/auth";
+import {
+  getAuthCookieOptions,
+  directusExpiresToSeconds,
+  REFRESH_TOKEN_COOKIE_MAX_AGE,
+} from "@/lib/auth";
 
 const url = process.env.NEXT_PUBLIC_DIRECTUS_URL;
 const webhookUrl = `${process.env.WEBHOOK_URL}/webhook/register`;
 const webhookKey = process.env.WEBHOOK_KEY;
+const BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN;
 
 export async function POST(req: Request) {
   try {
@@ -25,9 +31,34 @@ export async function POST(req: Request) {
       password?: string;
       status?: string;
       role?: string;
+      platform?: "web" | "telegram";
+      initData?: string;
     };
 
-    const { first_name, last_name, birthday, gender, email, password } = body;
+    const {
+      first_name,
+      last_name,
+      birthday,
+      gender,
+      email,
+      password,
+      platform,
+      initData,
+    } = body;
+
+    let telegramId: string | undefined;
+    if (platform === "telegram" && initData && BOT_TOKEN) {
+      try {
+        validate(initData, BOT_TOKEN, { expiresIn: 3600 });
+        const data = parse(initData);
+        telegramId = data.user?.id?.toString();
+      } catch {
+        return NextResponse.json(
+          { error: "Невалидные данные Telegram" },
+          { status: 400 },
+        );
+      }
+    }
 
     if (!email || !password || !url) {
       return NextResponse.json(
@@ -47,6 +78,7 @@ export async function POST(req: Request) {
       role: "b8a98260-14a2-4be2-91b4-ab93dd6a9be0",
       birthday: birthday ?? "",
       gender: gender ?? "",
+      ...(telegramId && { telegram_id: telegramId }),
     };
 
     await adminClient.request(createUser(userData as any));
@@ -78,12 +110,22 @@ export async function POST(req: Request) {
       );
     }
 
-    const cookieMaxAge = 60 * 60 * 24 * 30;
-    const cookieOpts = getAuthCookieOptions(cookieMaxAge);
+    const accessMaxAge =
+      authData?.expires != null
+        ? directusExpiresToSeconds(authData.expires)
+        : 900;
     const res = NextResponse.json({ user });
-    res.cookies.set("directus_token", token, cookieOpts);
+    res.cookies.set(
+      "access_token",
+      token,
+      getAuthCookieOptions(accessMaxAge),
+    );
     if (refreshToken) {
-      res.cookies.set("directus_refresh_token", refreshToken, cookieOpts);
+      res.cookies.set(
+        "refresh_token",
+        refreshToken,
+        getAuthCookieOptions(REFRESH_TOKEN_COOKIE_MAX_AGE),
+      );
     }
 
     if (webhookUrl?.startsWith("http") && webhookKey) {
