@@ -27,6 +27,7 @@ export default function RecomendateFeed() {
       filter: {
         status: "published",
       },
+      limit: -1,
     },
   });
 

@@ -343,7 +343,7 @@ export default function Measurements() {
           if (!open) setNewFormImages([]);
         }}
       >
-        <DialogContent className="mx-auto w-[calc(100%-2rem)] max-h-[90vh] rounded-2xl">
+        <DialogContent className="mx-auto w-[calc(100%-2rem)] rounded-2xl">
           <DialogHeader>
             <DialogTitle className="text-base font-semibold uppercase text-center flex flex-row items-center justify-between mt-7">
               <span>Новое измерение</span>
@@ -407,7 +407,7 @@ export default function Measurements() {
           if (!open) setEditMode(false);
         }}
       >
-        <DialogContent className="mx-auto w-[calc(100%-2rem)] max-h-[90vh] rounded-2xl">
+        <DialogContent className="mx-auto w-[calc(100%-2rem)] rounded-2xl">
           <DialogHeader>
             <DialogTitle className="flex flex-row items-center justify-between mt-7">
               <span className="text-lg leading-[1.1] font-semibold uppercase">

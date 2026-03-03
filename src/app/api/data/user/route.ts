@@ -38,9 +38,9 @@ const FIELDS = [
 
 /** Deep-параметры для вложенных коллекций */
 const DEEP = {
-  measurements: { _sort: ["-date_created" as const] },
-  payments: { _sort: ["-date_created" as const] },
-  subscriptions: { _sort: ["-date_created" as const] },
+  measurements: { _sort: ["-date_created" as const], _limit: -1 },
+  payments: { _sort: ["-date_created" as const], _limit: -1 },
+  subscriptions: { _sort: ["-date_created" as const], _limit: -1 },
 };
 
 /** Связи пользователя: ключ в body → коллекция Directus */
@@ -120,7 +120,10 @@ export async function GET() {
     if (authToken) {
       const payload = await verifyToken(authToken);
       if (!payload) {
-        return NextResponse.json({ error: "Invalid token" }, { status: 401 });
+        return NextResponse.json(
+          { error: "Невалидный токен" },
+          { status: 401 },
+        );
       }
       const client = getDirectusAdmin();
       const usersResponse = await client.request(
@@ -136,14 +139,17 @@ export async function GET() {
         : ((usersResponse as any)?.data ?? []);
       const user = usersList[0];
       if (!user) {
-        return NextResponse.json({ error: "User not found" }, { status: 401 });
+        return NextResponse.json(
+          { error: "Пользователь не найден" },
+          { status: 401 },
+        );
       }
       if (
         payload.telegramId &&
         String(user.telegram_id) !== String(payload.telegramId)
       ) {
         return NextResponse.json(
-          { error: "Telegram account unlinked" },
+          { error: "Аккаунт Telegram не связан" },
           { status: 401 },
         );
       }
@@ -199,11 +205,11 @@ export async function GET() {
       return res;
     }
 
-    return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
+    return NextResponse.json({ error: "Не авторизован" }, { status: 401 });
   } catch (err) {
     console.error("Error fetching user:", err);
     const res = NextResponse.json(
-      { error: "Authentication failed" },
+      { error: "Ошибка аутентификации" },
       { status: 401 },
     );
     // Очищаем невалидные cookies при ошибке — чтобы клиент корректно редиректил на логин
@@ -216,10 +222,7 @@ export async function GET() {
 
 export async function POST(req: Request) {
   if (!url) {
-    return NextResponse.json(
-      { error: "Server misconfigured" },
-      { status: 500 },
-    );
+    return NextResponse.json({ error: "Ошибка сервера" }, { status: 500 });
   }
 
   try {
@@ -283,7 +286,10 @@ export async function POST(req: Request) {
     if (authToken) {
       const payload = await verifyToken(authToken);
       if (!payload) {
-        return NextResponse.json({ error: "Invalid token" }, { status: 401 });
+        return NextResponse.json(
+          { error: "Невалидный токен" },
+          { status: 401 },
+        );
       }
       const admin = getDirectusAdmin();
       const userId = String(payload.userId);
@@ -381,13 +387,13 @@ export async function POST(req: Request) {
       return res;
     }
 
-    return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
+    return NextResponse.json({ error: "Не авторизован" }, { status: 401 });
   } catch (err) {
     const errMsg = isDirectusError(err)
       ? (err.errors?.[0]?.message ?? err.message)
       : err instanceof Error
         ? err.message
-        : "Update failed";
+        : "Ошибка обновления";
     console.error("Update error:", err);
     return NextResponse.json({ error: String(errMsg) }, { status: 400 });
   }

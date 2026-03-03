@@ -26,11 +26,12 @@ export default function Materials() {
       fields: ["*"],
       filter: { status: { _eq: "published" } },
       sort: { sort: { _asc: true } },
+      limit: -1,
     },
   });
 
   return (
-    <Page>
+    <Page back={false}>
       <UserHeader>
         <h1 className="text-xl font-semibold uppercase leading-[1.1]">
           Бонусные видео

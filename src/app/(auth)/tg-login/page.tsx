@@ -133,7 +133,7 @@ export default function TgLoginPage() {
           terms: data.terms,
           ...telegramOpts,
         });
-        toast.success("Успех! Добро пожаловать в New Level!");
+        toast.success("Успех! Добро пожаловать!");
         router.replace(redirectTo);
       }
     } catch {
@@ -162,8 +162,6 @@ export default function TgLoginPage() {
         <div className="flex flex-col gap-3">
           <h1 className="text-2xl leading-[1.1] font-bold text-center uppercase">
             Добро пожаловать
-            <br />
-            <span className="text-secondary-foreground">в New Level</span>
           </h1>
           <p className="text-base leading-[1] font-medium text-center text-foreground">
             приложение с авторскими тренировками от блогера Александры Бальман!
@@ -172,8 +170,8 @@ export default function TgLoginPage() {
         <Photo
           src="/assets/auth-hero.png"
           alt="Hero"
-          className="aspect-video"
-          fit="contain"
+          className="aspect-video rounded-2xl overflow-hidden"
+          fit="cover"
         />
 
         {step === "email" ? (

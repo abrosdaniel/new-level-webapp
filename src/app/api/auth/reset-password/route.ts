@@ -65,19 +65,16 @@ export async function POST(req: Request) {
 
     const { email } = body;
     if (!url) {
-      return NextResponse.json(
-        { error: "NEXT_PUBLIC_DIRECTUS_URL не настроен на сервере" },
-        { status: 500 },
-      );
+      return NextResponse.json({ error: "Ошибка сервера" }, { status: 500 });
     }
     if (!appUrl) {
-      return NextResponse.json(
-        { error: "NEXT_PUBLIC_APP_URL не настроен на сервере" },
-        { status: 500 },
-      );
+      return NextResponse.json({ error: "Ошибка приложения" }, { status: 500 });
     }
     if (!email || typeof email !== "string" || !email.trim()) {
-      return NextResponse.json({ error: "Email обязателен" }, { status: 400 });
+      return NextResponse.json(
+        { error: "Электронная почта обязательна" },
+        { status: 400 },
+      );
     }
 
     const client = createDirectus(url).with(rest());

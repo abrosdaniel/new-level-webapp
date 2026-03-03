@@ -51,7 +51,7 @@ export default function Profile() {
 
   const handleLogout = async () => {
     await logout();
-    toast.success("Вы вышли из аккаунта. Ждём вас снова в New Level!");
+    toast.success("Вы вышли из аккаунта. Ждём вас снова!");
   };
 
   return (

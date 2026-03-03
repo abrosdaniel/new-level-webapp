@@ -58,6 +58,7 @@ export default function Materials() {
       fields: ["*"],
       filter: { status: { _eq: "published" } },
       sort: { sort: { _asc: true } },
+      limit: -1,
     },
   });
 
@@ -114,12 +115,7 @@ export default function Materials() {
                 title: "Нет доступных материалов",
                 description: (
                   <p className="text-base leading-[1.15] font-normal text-muted-foreground">
-                    Пока нет доступных материалов. Доступ ко всем материалам
-                    откроется
-                    <br />
-                    <span className="font-semibold text-secondary-foreground uppercase">
-                      9 марта
-                    </span>
+                    Пока нет доступных материалов. Скоро они тут появятся!
                   </p>
                 ),
               }}

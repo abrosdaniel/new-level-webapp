@@ -60,13 +60,11 @@ export default function LoginPage() {
         <Photo
           src="/assets/auth-hero.png"
           alt="Hero"
-          className="aspect-video"
-          fit="contain"
+          className="aspect-video rounded-2xl overflow-hidden"
+          fit="cover"
         />
         <h1 className="text-2xl leading-[1.1] font-bold text-center uppercase">
           Добро пожаловать
-          <br />
-          <span className="text-secondary-foreground">в New Level</span>
         </h1>
         <p className="text-base leading-[1.15] font-regular text-center text-muted-foreground">
           Введите свой email и пароль, чтобы перейти к тренировкам

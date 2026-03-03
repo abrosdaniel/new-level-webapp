@@ -9,30 +9,30 @@ import { Provider } from "@/app/provider";
 const appUrl = process.env.NEXT_PUBLIC_APP_URL || "https://example.com";
 
 export const metadata: Metadata = {
-  title: "New Level",
+  title: "НОВЫЙ УРОВЕНЬ",
   description: "Приложение с тренировками от Александры Бальман",
-  applicationName: "New Level",
+  applicationName: "НОВЫЙ УРОВЕНЬ",
   generator: "Next.js",
   creator: "Alexander Balman",
   publisher: "Alexander Balman",
   metadataBase: new URL(appUrl),
   icons: {
-    icon: "/assets/logo.jpeg",
-    shortcut: "/assets/logo.jpeg",
-    apple: "/assets/logo.jpeg",
+    icon: "/assets/logo.png",
+    shortcut: "/assets/logo.png",
+    apple: "/assets/logo.png",
   },
   openGraph: {
-    title: "New Level — приложение с тренировками от Александры Бальман",
+    title: "НОВЫЙ УРОВЕНЬ — приложение с тренировками от Александры Бальман",
     description:
-      "Привет! Ты в New Level - приложении тренировок от Александры Бальман.Начинай свой путь к красивому и сильному телу прямо сейчас!",
+      "Привет! Ты в НОВЫЙ УРОВЕНЬ - приложении тренировок от Александры Бальман.Начинай свой путь к красивому и сильному телу прямо сейчас!",
     url: appUrl,
-    siteName: "New Level",
+    siteName: "НОВЫЙ УРОВЕНЬ",
     images: [
       {
-        url: `${appUrl}/assets/auth-hero.jpeg`,
+        url: `${appUrl}/assets/auth-hero.png`,
         width: 736,
         height: 306,
-        alt: "New Level — приложение с тренировками от Александры Бальман",
+        alt: "НОВЫЙ УРОВЕНЬ — приложение с тренировками от Александры Бальман",
       },
     ],
     locale: "ru_RU",
@@ -40,10 +40,10 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "New Level — приложение с тренировками от Александры Бальман",
+    title: "НОВЫЙ УРОВЕНЬ — приложение с тренировками от Александры Бальман",
     description:
-      "Привет! Ты в New Level - приложении тренировок от Александры Бальман.Начинай свой путь к красивому и сильному телу прямо сейчас!",
-    images: [`${appUrl}/assets/auth-hero.jpeg`],
+      "Привет! Ты в НОВЫЙ УРОВЕНЬ - приложении тренировок от Александры Бальман.Начинай свой путь к красивому и сильному телу прямо сейчас!",
+    images: [`${appUrl}/assets/auth-hero.png`],
   },
 };
 

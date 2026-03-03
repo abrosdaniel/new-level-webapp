@@ -1,11 +1,11 @@
 <p align="center">
 <a href ="https://wnrs.ru" target="_blank" title="WINNERS">
-<img src=".github/assets/logo.jpeg" width="150px" alt="WINNERS"/>
+<img src=".github/assets/logo.png" width="150px" alt="Новый уровень"/>
 </a>
 </p>
 <div align="center">
 
-[![Site/Version](https://img.shields.io/badge/app.newlevel.space-v_1.1-2A8F3B)](https://app.newlevel.space)
+[![Site/Version](https://img.shields.io/badge/app.newlevel.space-v_1.2-2A8F3B)](https://app.newlevel.space)
 [![Next.js](https://img.shields.io/badge/Next.js-black?logo=next.js)](https://nextjs.org)
 [![Directus](https://img.shields.io/badge/Directus-263238?logo=directus)](https://directus.io)
 [![N8N](https://img.shields.io/badge/N8N-EA4B71?logo=n8n&logoColor=white)](https://n8n.io)
@@ -21,6 +21,15 @@ The application is built with Next.js (App Router), leveraging React Server Comp
 Authentication and gated content delivery are implemented with secure token handling and role-based access control principles. API communication is centralized through a service layer, reducing coupling and improving testability. The application is optimized for performance through controlled hydration, efficient data fetching strategies, and minimized client-side footprint.
 
 The platform was engineered not only as a content delivery tool but as a scalable digital product foundation capable of evolving into a broader ecosystem (subscriptions, analytics, automation, integrations).
+
+<div>
+<img src=".github/assets/1.png" width="33%" alt="Экран 1"/>
+<img src=".github/assets/2.png" width="33%" alt="Экран 2"/>
+<img src=".github/assets/3.png" width="33%" alt="Экран 3"/>
+<img src=".github/assets/4.png" width="33%" alt="Экран 4"/>
+<img src=".github/assets/5.png" width="33%" alt="Экран 5"/>
+<img src=".github/assets/6.png" width="33%" alt="Экран 6"/>
+</div>
 
 # Table of Contents
 

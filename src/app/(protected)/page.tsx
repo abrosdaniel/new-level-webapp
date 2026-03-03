@@ -94,7 +94,7 @@ export default function Home() {
               </span>
             </h1>
             <p className="text-sm leading-[1.15] font-medium">
-              Добро пожаловать в New Level!
+              Добро пожаловать на НОВЫЙ УРОВЕНЬ!
             </p>
           </>
         )}

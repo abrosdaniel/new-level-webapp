@@ -26,6 +26,7 @@ export default function CoursesPage() {
       fields: ["*", "weeks.*"],
       filter: { status: { _in: ["open", "close"] } },
       sort: { sort: { _asc: true } },
+      limit: -1,
     },
   });
 

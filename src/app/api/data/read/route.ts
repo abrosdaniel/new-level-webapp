@@ -44,8 +44,7 @@ function isTokenExpiredError(err: unknown): boolean {
   const errMsg = (err as { errors?: Array<{ message?: string }> }).errors?.[0]
     ?.message;
   return (
-    msg.includes("Token expired") ||
-    (errMsg?.includes("Token expired") ?? false)
+    msg.includes("Токен истек") || (errMsg?.includes("Токен истек") ?? false)
   );
 }
 
@@ -80,10 +79,7 @@ export async function POST(req: Request) {
       const hasAuth =
         (authToken && (await verifyToken(authToken))) || effectiveDirectusToken;
       if (!hasAuth) {
-        return NextResponse.json(
-          { error: "Not authenticated" },
-          { status: 401 },
-        );
+        return NextResponse.json({ error: "Не авторизован" }, { status: 401 });
       }
     }
 
@@ -172,7 +168,7 @@ export async function POST(req: Request) {
       params.type !== "items"
     ) {
       return NextResponse.json(
-        { error: "Invalid type: use 'item', 'items', or 'singleton'" },
+        { error: "Неверный тип: используйте 'item', 'items', или 'singleton'" },
         { status: 400 },
       );
     }
@@ -184,7 +180,9 @@ export async function POST(req: Request) {
 
     const tokensToSet =
       manualRefreshTokens ??
-      (tokenResult && "cookies" in tokenResult ? tokenResult.cookies : undefined);
+      (tokenResult && "cookies" in tokenResult
+        ? tokenResult.cookies
+        : undefined);
     if (tokensToSet) {
       const accessMaxAge =
         tokensToSet.expires != null
@@ -208,7 +206,7 @@ export async function POST(req: Request) {
   } catch (err) {
     console.error("Data read error:", err);
     return NextResponse.json(
-      { error: "Failed to fetch data" },
+      { error: "Ошибка при получении данных" },
       { status: 500 },
     );
   }

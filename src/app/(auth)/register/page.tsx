@@ -82,7 +82,7 @@ export default function Register() {
     try {
       await register(data);
       await refetch();
-      toast.success("Успех! Добро пожаловать в New Level!");
+      toast.success("Успех! Добро пожаловать!");
       router.replace(redirectTo);
     } catch (error) {
       toast.error(
@@ -99,8 +99,6 @@ export default function Register() {
         <div className="flex flex-col gap-3">
           <h1 className="text-2xl leading-[1.1] font-bold text-center uppercase">
             Добро пожаловать
-            <br />
-            <span className="text-secondary-foreground">в New Level</span>
           </h1>
           <p className="text-base leading-[1] font-medium text-center text-foreground">
             приложение с авторскими тренировками от блогера Александры Бальман!
@@ -109,8 +107,8 @@ export default function Register() {
         <Photo
           src="/assets/auth-hero.png"
           alt="Hero"
-          className="aspect-video"
-          fit="contain"
+          className="aspect-video rounded-2xl overflow-hidden"
+          fit="cover"
         />
         <p className="text-base leading-[1.15] font-normal text-muted-foreground">
           Создай свой профиль, чтобы отслеживать прогресс во время тренировок.

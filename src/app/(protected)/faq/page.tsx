@@ -28,6 +28,7 @@ export default function FAQ() {
       fields: ["*"],
       filter: { status: { _eq: "published" } },
       sort: { sort: { _asc: true } },
+      limit: -1,
     },
   });
 

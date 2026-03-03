@@ -15,7 +15,7 @@ export async function POST(req: Request) {
     const { initData } = (await req.json()) as { initData?: string };
     if (!initData || !BOT_TOKEN) {
       return NextResponse.json(
-        { error: "initData or TELEGRAM_BOT_TOKEN missing" },
+        { error: "Невалидные данные Telegram" },
         { status: 400 },
       );
     }
@@ -25,7 +25,7 @@ export async function POST(req: Request) {
     const telegramId = data.user?.id?.toString();
     if (!telegramId) {
       return NextResponse.json(
-        { error: "No user in init data" },
+        { error: "Пользователь не найден в данных Telegram" },
         { status: 400 },
       );
     }
@@ -44,14 +44,14 @@ export async function POST(req: Request) {
     const user = usersList[0];
     if (!user) {
       return NextResponse.json(
-        { error: "User not found in Directus", code: "USER_NOT_FOUND" },
+        { error: "Пользователь не найден", code: "USER_NOT_FOUND" },
         { status: 401 },
       );
     }
 
     if (user.status === "blocked") {
       return NextResponse.json(
-        { error: "Account blocked", code: "BLOCKED" },
+        { error: "Аккаунт заблокирован", code: "BLOCKED" },
         { status: 403 },
       );
     }
@@ -70,11 +70,14 @@ export async function POST(req: Request) {
     return res;
   } catch (err: any) {
     if (err?.name === "SignatureInvalidError" || err?.name === "ExpiredError") {
-      return NextResponse.json({ error: "Invalid init data" }, { status: 401 });
+      return NextResponse.json(
+        { error: "Невалидные данные Telegram" },
+        { status: 401 },
+      );
     }
     console.error("Auth telegram error:", err);
     return NextResponse.json(
-      { error: "Authentication failed" },
+      { error: "Ошибка аутентификации" },
       { status: 500 },
     );
   }

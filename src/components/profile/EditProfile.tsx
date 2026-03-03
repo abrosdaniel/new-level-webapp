@@ -184,6 +184,8 @@ export default function EditProfile({ user }: { user: User }) {
                       value={field.value}
                       onChange={field.onChange}
                       placeholder="Выберите дату рождения"
+                      defaultMonth={field.value}
+                      captionLayout="dropdown"
                     />
                   </FormControl>
                   <FormMessage />

@@ -56,6 +56,7 @@ export default function Recipes() {
       fields: ["*"],
       filter: { status: { _eq: "published" } },
       sort: { sort: { _asc: true } },
+      limit: -1,
     },
   });
 
@@ -111,7 +112,7 @@ export default function Recipes() {
   };
 
   return (
-    <Page className="mx-0">
+    <Page back={false} className="mx-0">
       <UserHeader classNames={{ wrapper: "mx-4", container: "w-full" }}>
         <h1 className="text-xl font-semibold uppercase leading-[1.1]">
           Питание
