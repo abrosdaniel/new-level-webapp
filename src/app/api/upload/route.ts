@@ -66,7 +66,14 @@ export async function POST(req: Request) {
     }
 
     if (!directusToken) {
-      return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
+      const tokenExpired = !!directusRefreshToken?.trim();
+      return NextResponse.json(
+        {
+          error: tokenExpired ? "Сессия истекла" : "Not authenticated",
+          code: tokenExpired ? "TOKEN_EXPIRED" : undefined,
+        },
+        { status: 401 },
+      );
     }
 
     if (useUserToken && directusRefreshToken && !tokensToSet) {

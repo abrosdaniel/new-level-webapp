@@ -1,14 +1,22 @@
 "use client";
 
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { toast } from "sonner";
 
 import type { User } from "@/types/user";
+
+export type ApiError = Error & { code?: string };
 
 async function fetchUser(): Promise<{ user: User }> {
   const res = await fetch("/api/data/user", { credentials: "include" });
   if (!res.ok) {
-    const data = await res.json().catch(() => ({}));
-    throw new Error(data?.error || "Not authenticated");
+    const data = (await res.json().catch(() => ({}))) as {
+      error?: string;
+      code?: string;
+    };
+    const err = new Error(data?.error || "Not authenticated") as ApiError;
+    err.code = data?.code;
+    throw err;
   }
   return res.json();
 }
@@ -23,10 +31,20 @@ async function postUser(patch: Record<string, unknown>): Promise<{
     credentials: "include",
   });
   if (!res.ok) {
-    const data = await res.json().catch(() => ({}));
-    throw new Error((data as { error?: string })?.error || "Update failed");
+    const data = (await res.json().catch(() => ({}))) as {
+      error?: string;
+      code?: string;
+    };
+    const err = new Error(data?.error || "Update failed") as ApiError;
+    err.code = data?.code;
+    throw err;
   }
   return res.json();
+}
+
+function handleTokenExpired(queryClient: ReturnType<typeof useQueryClient>) {
+  toast.error("Сессия истекла, войдите заново");
+  queryClient.setQueryData(["user"], null);
 }
 
 export function useUser() {
@@ -51,16 +69,31 @@ export function useUser() {
   const createMutation = useMutation({
     mutationFn: (payload: Record<string, unknown>) => postUser(payload),
     onSuccess,
+    onError: (err) => {
+      if ((err as ApiError)?.code === "TOKEN_EXPIRED") {
+        handleTokenExpired(queryClient);
+      }
+    },
   });
 
   const updateMutation = useMutation({
     mutationFn: (payload: Record<string, unknown>) => postUser(payload),
     onSuccess,
+    onError: (err) => {
+      if ((err as ApiError)?.code === "TOKEN_EXPIRED") {
+        handleTokenExpired(queryClient);
+      }
+    },
   });
 
   const deleteMutation = useMutation({
     mutationFn: (payload: Record<string, unknown>) => postUser(payload),
     onSuccess,
+    onError: (err) => {
+      if ((err as ApiError)?.code === "TOKEN_EXPIRED") {
+        handleTokenExpired(queryClient);
+      }
+    },
   });
 
   const uploadMutation = useMutation({
@@ -85,10 +118,20 @@ export function useUser() {
         credentials: "include",
       });
       if (!res.ok) {
-        const data = await res.json().catch(() => ({}));
-        throw new Error((data as { error?: string })?.error || "Upload failed");
+        const data = (await res.json().catch(() => ({}))) as {
+          error?: string;
+          code?: string;
+        };
+        const err = new Error(data?.error || "Upload failed") as ApiError;
+        err.code = data?.code;
+        throw err;
       }
       return res.json() as Promise<{ id: string }>;
+    },
+    onError: (err) => {
+      if ((err as ApiError)?.code === "TOKEN_EXPIRED") {
+        handleTokenExpired(queryClient);
+      }
     },
   });
 

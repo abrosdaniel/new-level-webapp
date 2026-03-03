@@ -79,7 +79,15 @@ export async function POST(req: Request) {
       const hasAuth =
         (authToken && (await verifyToken(authToken))) || effectiveDirectusToken;
       if (!hasAuth) {
-        return NextResponse.json({ error: "Не авторизован" }, { status: 401 });
+        const tokenExpired =
+          (directusToken || directusRefreshToken) && !effectiveDirectusToken;
+        return NextResponse.json(
+          {
+            error: tokenExpired ? "Сессия истекла" : "Не авторизован",
+            code: tokenExpired ? "TOKEN_EXPIRED" : undefined,
+          },
+          { status: 401 },
+        );
       }
     }
 

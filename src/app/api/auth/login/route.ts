@@ -66,18 +66,11 @@ export async function POST(req: Request) {
 
     let telegramId: string | undefined;
     if (platform === "telegram" && initData && BOT_TOKEN && user?.id) {
-      console.log("[login] telegram:", {
-        platform,
-        hasInitData: !!initData,
-        hasBotToken: !!BOT_TOKEN,
-        botTokenLen: BOT_TOKEN?.length,
-      });
       try {
         validate(initData, BOT_TOKEN, { expiresIn: 3600 });
         const data = parse(initData);
         telegramId = data.user?.id?.toString();
       } catch (err) {
-        console.error("[login] initData validation failed:", err);
         // initData invalid — не блокируем вход
       }
     }
@@ -106,12 +99,21 @@ export async function POST(req: Request) {
       : err instanceof Error
         ? err.message
         : JSON.stringify(err);
-    const errCode = isDirectusError(err)
-      ? err.errors?.[0]?.extensions?.code
-      : undefined;
-    console.error("Login error:", errMsg, err);
-    const errorMessage =
-      process.env.NODE_ENV === "development" ? errMsg : "Invalid credentials";
-    return NextResponse.json({ error: errorMessage }, { status: 401 });
+    const isInvalidCredentials =
+      typeof errMsg === "string" &&
+      (errMsg.toLowerCase().includes("invalid") ||
+        errMsg.toLowerCase().includes("credentials"));
+    const errorMessage = isInvalidCredentials
+      ? "Неверный email или пароль"
+      : process.env.NODE_ENV === "development"
+        ? errMsg
+        : "Ошибка входа";
+    if (process.env.NODE_ENV === "development" && !isInvalidCredentials) {
+      console.error("Login error:", errMsg);
+    }
+    return NextResponse.json(
+      { error: errorMessage, code: isInvalidCredentials ? "INVALID_CREDENTIALS" : undefined },
+      { status: 401 },
+    );
   }
 }

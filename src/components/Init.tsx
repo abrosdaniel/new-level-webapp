@@ -26,8 +26,9 @@ import {
   default as NextLink,
 } from "next/link";
 import { useAuth } from "@/hooks/useAuth";
-import { useUser } from "@/hooks/useUser";
+import { useUser, type ApiError } from "@/hooks/useUser";
 import { cn } from "@/lib/utils";
+import { toast } from "sonner";
 
 import { Menu } from "@/components/Menu";
 import { Notice } from "@/components/Notice";
@@ -141,7 +142,7 @@ export function InitProvider({ children }: { children: ReactNode }) {
   const searchParams = useSearchParams();
   const [platform, setPlatform] = useState<Platform | null>(null);
   const { isAuthenticated, loginTelegram } = useAuth();
-  const { user, isLoading, refetch } = useUser();
+  const { user, isLoading, error, refetch } = useUser();
   const telegramAttempted = useRef(false);
   const [telegramAuthPending, setTelegramAuthPending] = useState(false);
   const redirectAfterAuth = getSafeRedirect(searchParams.get("redirect"));
@@ -200,6 +201,9 @@ export function InitProvider({ children }: { children: ReactNode }) {
     }
 
     if (!isAuthenticated && !isAuthPath && !isPublicPath) {
+      if ((error as ApiError)?.code === "TOKEN_EXPIRED") {
+        toast.error("Сессия истекла, войдите заново");
+      }
       const intendedPath = getIntendedPath(pathname);
       const redirectParam = `redirect=${encodeURIComponent(intendedPath)}`;
       if (platform === "telegram" && !telegramAttempted.current) {
@@ -236,6 +240,7 @@ export function InitProvider({ children }: { children: ReactNode }) {
     isLoading,
     isAuthenticated,
     user,
+    error,
     isAuthPath,
     pathname,
     router,

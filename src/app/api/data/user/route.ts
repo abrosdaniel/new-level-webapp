@@ -205,11 +205,21 @@ export async function GET() {
       return res;
     }
 
-    return NextResponse.json({ error: "Не авторизован" }, { status: 401 });
+    const tokenExpired =
+      (directusToken || directusRefreshToken) && !effectiveAccess;
+    return NextResponse.json(
+      {
+        error: tokenExpired ? "Сессия истекла" : "Не авторизован",
+        code: tokenExpired ? "TOKEN_EXPIRED" : undefined,
+      },
+      { status: 401 },
+    );
   } catch (err) {
-    console.error("Error fetching user:", err);
+    if (process.env.NODE_ENV === "development") {
+      console.error("Error fetching user:", err);
+    }
     const res = NextResponse.json(
-      { error: "Ошибка аутентификации" },
+      { error: "Ошибка аутентификации", code: "TOKEN_EXPIRED" as const },
       { status: 401 },
     );
     // Очищаем невалидные cookies при ошибке — чтобы клиент корректно редиректил на логин
