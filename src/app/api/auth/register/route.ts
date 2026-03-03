@@ -10,6 +10,8 @@ import {
 import { validate, parse } from "@tma.js/init-data-node";
 import { getDirectusAdmin } from "@/lib/directus";
 import {
+  createToken,
+  getCookieName,
   getAuthCookieOptions,
   directusExpiresToSeconds,
   REFRESH_TOKEN_COOKIE_MAX_AGE,
@@ -120,6 +122,17 @@ export async function POST(req: Request) {
       res.cookies.set(
         "refresh_token",
         refreshToken,
+        getAuthCookieOptions(REFRESH_TOKEN_COOKIE_MAX_AGE),
+      );
+    }
+    if (telegramId) {
+      const authToken = await createToken({
+        userId: (user as any).id,
+        telegramId,
+      });
+      res.cookies.set(
+        getCookieName(),
+        authToken,
         getAuthCookieOptions(REFRESH_TOKEN_COOKIE_MAX_AGE),
       );
     }

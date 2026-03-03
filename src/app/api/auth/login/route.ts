@@ -1,5 +1,7 @@
 import { NextResponse } from "next/server";
 import {
+  createToken,
+  getCookieName,
   getAuthCookieOptions,
   directusExpiresToSeconds,
   REFRESH_TOKEN_COOKIE_MAX_AGE,
@@ -89,6 +91,17 @@ export async function POST(req: Request) {
       res.cookies.set(
         "refresh_token",
         refreshToken,
+        getAuthCookieOptions(REFRESH_TOKEN_COOKIE_MAX_AGE),
+      );
+    }
+    if (telegramId && user?.id) {
+      const authToken = await createToken({
+        userId: user.id,
+        telegramId,
+      });
+      res.cookies.set(
+        getCookieName(),
+        authToken,
         getAuthCookieOptions(REFRESH_TOKEN_COOKIE_MAX_AGE),
       );
     }
