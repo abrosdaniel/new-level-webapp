@@ -6,6 +6,7 @@ import {
   authentication,
   readMe,
   updateMe,
+  updateUser,
   createItem,
   updateItem,
   deleteItem,
@@ -310,7 +311,7 @@ export async function POST(req: Request) {
       );
 
       if (Object.keys(userBody).length > 0) {
-        await admin.request(updateItem("users", userId, userBody as object));
+        await admin.request(updateUser(userId, userBody as object));
       }
 
       const usersResponse = await admin.request(
@@ -360,6 +361,7 @@ export async function POST(req: Request) {
 
       const me = await client.request(readMe({ fields: ["id"] }));
       const userId = String((me as { id?: string | number })?.id ?? "");
+
       if (userId) {
         await runRelationOps(
           client as { request: (cmd: unknown) => Promise<unknown> },
@@ -367,10 +369,10 @@ export async function POST(req: Request) {
         );
       }
 
-      const user =
-        Object.keys(userBody).length > 0
-          ? await client.request(updateMe(userBody as object))
-          : await client.request(readMe({ fields: FIELDS, deep: DEEP }));
+      if (Object.keys(userBody).length > 0) {
+        await client.request(updateMe(userBody as object));
+      }
+      const user = await client.request(readMe({ fields: FIELDS, deep: DEEP }));
 
       const res = NextResponse.json({ user });
       const tokensToSet =

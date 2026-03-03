@@ -3,6 +3,7 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 
 import type { User } from "@/types/user";
+import { formatBirthday } from "@/lib/utils";
 import { useUser } from "./useUser";
 
 export function useAuth() {
@@ -29,7 +30,7 @@ export function useAuth() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           ...payload,
-          birthday: payload.birthday.toISOString().split("T")[0],
+          birthday: formatBirthday(payload.birthday),
           ...(platform && { platform }),
           ...(initData && { initData }),
         }),

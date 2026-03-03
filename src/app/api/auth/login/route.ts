@@ -112,7 +112,10 @@ export async function POST(req: Request) {
       console.error("Login error:", errMsg);
     }
     return NextResponse.json(
-      { error: errorMessage, code: isInvalidCredentials ? "INVALID_CREDENTIALS" : undefined },
+      {
+        error: errorMessage,
+        code: isInvalidCredentials ? "INVALID_CREDENTIALS" : undefined,
+      },
       { status: 401 },
     );
   }

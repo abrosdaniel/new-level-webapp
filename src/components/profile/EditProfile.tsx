@@ -8,6 +8,7 @@ import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 
 import type { User } from "@/types/user";
+import { formatBirthday } from "@/lib/utils";
 
 import {
   Dialog,
@@ -62,7 +63,7 @@ export default function EditProfile({ user }: { user: User }) {
         last_name: data.last_name,
         phone: data.phone,
         gender: data.gender,
-        birthday: data.birthday.toISOString().split("T")[0],
+        birthday: formatBirthday(data.birthday),
       });
       await refetch();
       toast.success("Профиль успешно обновлён!");

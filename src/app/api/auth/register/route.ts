@@ -115,11 +115,7 @@ export async function POST(req: Request) {
         ? directusExpiresToSeconds(authData.expires)
         : 900;
     const res = NextResponse.json({ user });
-    res.cookies.set(
-      "access_token",
-      token,
-      getAuthCookieOptions(accessMaxAge),
-    );
+    res.cookies.set("access_token", token, getAuthCookieOptions(accessMaxAge));
     if (refreshToken) {
       res.cookies.set(
         "refresh_token",

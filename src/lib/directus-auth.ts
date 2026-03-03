@@ -56,10 +56,7 @@ export type DirectusCookies = {
 export async function getValidDirectusToken(
   accessToken: string,
   refreshToken: string | undefined,
-): Promise<
-  | { token: string }
-  | { token: string; cookies: DirectusCookies }
-> {
+): Promise<{ token: string } | { token: string; cookies: DirectusCookies }> {
   let token = accessToken;
   let cookiesToSet: DirectusCookies | undefined;
 
