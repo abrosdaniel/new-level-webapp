@@ -66,11 +66,18 @@ export async function POST(req: Request) {
 
     let telegramId: string | undefined;
     if (platform === "telegram" && initData && BOT_TOKEN && user?.id) {
+      console.log("[login] telegram:", {
+        platform,
+        hasInitData: !!initData,
+        hasBotToken: !!BOT_TOKEN,
+        botTokenLen: BOT_TOKEN?.length,
+      });
       try {
         validate(initData, BOT_TOKEN, { expiresIn: 3600 });
         const data = parse(initData);
         telegramId = data.user?.id?.toString();
-      } catch {
+      } catch (err) {
+        console.error("[login] initData validation failed:", err);
         // initData invalid — не блокируем вход
       }
     }
