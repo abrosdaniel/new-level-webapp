@@ -208,6 +208,23 @@ export default function PaymentPage() {
                 <p className="text-blue-500 font-medium">
                   {HAPPY_MESSAGES[messageIndex]}
                 </p>
+                {messageIndex === HAPPY_MESSAGES.length - 1 && (
+                  <>
+                    <p>
+                      Если платёж не проходит, попробуйте связаться с
+                      поддержкой.
+                    </p>
+                    <br />
+                    <br />
+                    <Link
+                      className="text-secondary-foreground hover:underline"
+                      href="https://t.me/newlevel_appbot"
+                      target="_blank"
+                    >
+                      Связаться с поддержкой
+                    </Link>
+                  </>
+                )}
               </>
             ),
           }}

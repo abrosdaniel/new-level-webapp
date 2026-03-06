@@ -13,6 +13,7 @@
 
 .wysiwyg p {
   margin: 0 0 1em 0;
+  color: hsl(var(--muted-foreground));
 }
 
 .wysiwyg ul,

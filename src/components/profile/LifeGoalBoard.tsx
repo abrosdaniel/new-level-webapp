@@ -69,13 +69,16 @@ export default function LifeGoalBoard({ user }: { user: User }) {
         <Button
           custom="white"
           size="lg"
-          className="inline-flex items-center justify-between p-3 mb-6"
+          className="inline-flex items-center justify-between p-3 mt-2.5 shadow-[0px_0px_10px_0px_rgba(0,0,0,0.08)]"
         >
           Ваша активность и цель
           <ChevronRightIcon className="!size-5 text-secondary-foreground" />
         </Button>
       </DialogTrigger>
-      <DialogContent className="mx-auto w-[calc(100%-2rem)] rounded-2xl max-h-[90vh] overflow-y-auto">
+      <DialogContent
+        className="mx-auto w-[calc(100%-2rem)] rounded-2xl max-h-[90vh] overflow-y-auto"
+        classClose="text-secondary-foreground"
+      >
         <DialogHeader>
           <DialogTitle className="text-base leading-[1.15] font-semibold uppercase text-center">
             Активность и цель
@@ -99,6 +102,7 @@ export default function LifeGoalBoard({ user }: { user: User }) {
                       value={field.value}
                       onValueChange={field.onChange}
                       classNames={{
+                        group: "flex flex-col gap-1",
                         label: "bg-white shadow-sm rounded-xl p-2",
                       }}
                       options={[
@@ -148,7 +152,6 @@ export default function LifeGoalBoard({ user }: { user: User }) {
                           ),
                         },
                       ]}
-                      className="flex flex-col gap-2"
                     />
                   </FormControl>
                   <FormMessage />
@@ -168,6 +171,7 @@ export default function LifeGoalBoard({ user }: { user: User }) {
                       value={field.value}
                       onValueChange={field.onChange}
                       classNames={{
+                        group: "flex flex-col gap-1",
                         label: "bg-white shadow-sm rounded-xl p-2.5",
                       }}
                       options={[
@@ -181,7 +185,6 @@ export default function LifeGoalBoard({ user }: { user: User }) {
                           label: "Набор мышечной массы",
                         },
                       ]}
-                      className="flex flex-col gap-2"
                     />
                   </FormControl>
                   <FormMessage />
@@ -192,12 +195,12 @@ export default function LifeGoalBoard({ user }: { user: User }) {
               <Button type="submit" size="lg" disabled={isUpdating}>
                 {isUpdating ? (
                   <>
-                    <span>Обновление…</span>
+                    <span>Сохранение…</span>
                     <Spinner className="!size-6" />
                   </>
                 ) : (
                   <>
-                    <span>Обновить</span>
+                    <span>Сохранить</span>
                     <ArrowRightIcon className="!size-5 text-secondary-foreground" />
                   </>
                 )}

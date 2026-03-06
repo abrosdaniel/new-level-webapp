@@ -41,17 +41,22 @@ export default function FAQ() {
         <Accordion
           type="single"
           collapsible
-          className="bg-white rounded-xl px-3 mb-6"
+          className="bg-white rounded-xl mb-6"
         >
           {data?.map((item) => (
             <AccordionItem
               key={item.id}
               value={item.id}
-              className="last:border-b-0"
+              className="last:border-b-0 px-3 border-[#EEF2F5]"
             >
-              <AccordionTrigger>{item.question}</AccordionTrigger>
+              <AccordionTrigger className="text-base leading-[1] font-medium text-black [&[data-state=open]>svg]:text-secondary-foreground">
+                {item.question}
+              </AccordionTrigger>
               <AccordionContent>
-                <WYSIWYG html={item.answer} className="text-muted-foreground" />
+                <WYSIWYG
+                  html={item.answer}
+                  className="text-base leading-[1.15] font-normal text-muted-foreground"
+                />
               </AccordionContent>
             </AccordionItem>
           ))}

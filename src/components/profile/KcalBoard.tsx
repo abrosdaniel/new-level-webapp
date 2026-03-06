@@ -6,6 +6,8 @@ import { cn } from "@/lib/utils";
 
 import type { User } from "@/types/user";
 
+import LifeGoalBoard from "@/components/profile/LifeGoalBoard";
+
 import {
   HoverCard,
   HoverCardContent,
@@ -67,7 +69,7 @@ export default function KcalBoard({
             <HoverCardContent
               side="top"
               align="end"
-              className="text-sm leading-[1.15] font-normal text-muted-foreground text-center rounded-xl"
+              className="text-sm leading-[1.15] font-normal text-muted-foreground text-center rounded-xl border-none shadow-[0px_0px_10px_0px_rgba(0,0,0,0.1)]"
             >
               Чтобы рассчитать свою норму калорийности, введи свои актуальные
               параметры в Моих измерениях и выбери свой текущий уровень
@@ -83,13 +85,17 @@ export default function KcalBoard({
         </h3>
         <p className="text-base leading-[1.15]">{GOAL_LABELS[user.goal]}</p>
       </div>
+      {variant === "profile" && <LifeGoalBoard user={user} />}
       {variant === "recipes" && (
         <Dialog>
           <DialogTrigger className="inline-flex items-center justify-center gap-2.5 text-sm leading-[1.15] font-medium text-secondary-foreground mt-2.5">
             рекомендации по питанию
             <Info className="!size-4" />
           </DialogTrigger>
-          <DialogContent className="mx-auto w-[calc(100%-2rem)] rounded-2xl">
+          <DialogContent
+            className="mx-auto w-[calc(100%-2rem)] rounded-2xl"
+            classClose="text-secondary-foreground"
+          >
             <DialogHeader>
               <DialogTitle className="text-start text-base leading-[1.15] font-semibold uppercase mb-4">
                 Рекомендации:

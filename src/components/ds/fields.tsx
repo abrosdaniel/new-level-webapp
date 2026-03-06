@@ -21,7 +21,8 @@ import {
 } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
 
-import { Eye, EyeOff, CalendarIcon, CopyIcon } from "lucide-react";
+import { Eye, EyeOff, CopyIcon } from "lucide-react";
+import { Calendar as CalendarIcon } from "@/assets/icons/App";
 
 export const Input = ({
   className,
@@ -30,7 +31,7 @@ export const Input = ({
   return (
     <InputUI
       className={cn(
-        "text-base leading-[1.15] font-normal !px-3 !py-4 !h-auto border-gray-200 rounded-xl shadow-sm focus-visible:ring-secondary-foreground",
+        "text-base leading-[1.15] font-normal !px-3 !py-4 !h-auto border-gray-200 rounded-xl focus-visible:ring-secondary-foreground shadow-none",
         className,
       )}
       {...props}
@@ -125,7 +126,7 @@ export const InputDate = ({
             className="absolute right-0 top-0 h-full px-3 hover:bg-transparent"
             aria-label="Открыть календарь"
           >
-            <CalendarIcon className="size-4 text-muted-foreground" />
+            <CalendarIcon className="size-4 text-secondary-foreground" />
           </Button>
         </PopoverTrigger>
       </div>
@@ -180,7 +181,7 @@ export const RadioGroup = ({
           <RadioGroupItem
             value={option.value}
             className={cn("size-4 border-gray-300", classNames?.item)}
-            classDot="size-2 fill-secondary-foreground text-secondary-foreground"
+            classDot="size-2 fill-secondary-foreground text-secondary-foreground shadow-none"
           />
           {option.label}
         </Label>

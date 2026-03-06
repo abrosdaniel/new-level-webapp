@@ -91,13 +91,16 @@ export default function EditProfile({ user }: { user: User }) {
       <DialogTrigger asChild>
         <Button
           variant="secondary"
-          className="bg-white rounded-full"
+          className="bg-white rounded-full shadow-[0px_0px_10px_0px_rgba(0,0,0,0.05)]"
           size="icon"
         >
           <PencilLine className="!size-4" />
         </Button>
       </DialogTrigger>
-      <DialogContent className="mx-auto w-[calc(100%-2rem)] rounded-2xl">
+      <DialogContent
+        className="mx-auto w-[calc(100%-2rem)] rounded-2xl"
+        classClose="text-secondary-foreground"
+      >
         <DialogHeader>
           <DialogTitle className="text-base leading-[1.15] font-semibold uppercase text-center">
             Редактировать профиль

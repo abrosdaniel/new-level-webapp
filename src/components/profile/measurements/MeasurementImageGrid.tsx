@@ -5,7 +5,8 @@ import { Button } from "@/components/ui/button";
 import { FormItem, FormLabel } from "@/components/ui/form";
 import { Photo } from "@/components/Photo";
 import { Spinner } from "@/components/ui/spinner";
-import { ImageOff, SquarePlus, X } from "lucide-react";
+import { X } from "lucide-react";
+import { SquarePlus, Camera } from "@/assets/icons/App";
 
 const UPLOAD_ACCEPT = ["image/jpeg", "image/png", "image/webp"];
 const UPLOAD_MAX_SIZE = 5 * 1024 * 1024;
@@ -42,7 +43,7 @@ export function MeasurementImageGrid({
         {Array.from({ length: 6 }).map((_, i) => (
           <div
             key={i}
-            className="relative aspect-square rounded-xl border-2 border-dashed border-secondary-foreground/25 bg-[#EEF2F5] overflow-hidden"
+            className="relative aspect-square rounded-xl bg-[#EEF2F5] overflow-hidden"
           >
             {images[i] ? (
               <>
@@ -89,7 +90,7 @@ export function MeasurementImageGrid({
               )
             ) : (
               <div className="w-full h-full flex items-center justify-center text-secondary-foreground opacity-50">
-                <ImageOff className="size-8" />
+                <Camera className="size-8" />
               </div>
             )}
           </div>

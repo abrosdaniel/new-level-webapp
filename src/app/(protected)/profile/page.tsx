@@ -15,7 +15,6 @@ import EditProfile from "@/components/profile/EditProfile";
 import Payments from "@/components/profile/Payments";
 import MeasurementsBoard from "@/components/profile/measurements/MeasurementsBoard";
 import KcalBoard from "@/components/profile/KcalBoard";
-import LifeGoalBoard from "@/components/profile/LifeGoalBoard";
 
 import { QuestionMark, Measurements } from "@/assets/icons/App";
 import { Loader2, LogOut } from "lucide-react";
@@ -65,7 +64,7 @@ export default function Profile() {
             <Link href="/faq/">
               <Button
                 variant="secondary"
-                className="bg-white rounded-full"
+                className="bg-white rounded-full shadow-[0px_0px_10px_0px_rgba(0,0,0,0.05)]"
                 size="icon"
               >
                 <QuestionMark className="!size-4" />
@@ -80,7 +79,7 @@ export default function Profile() {
               (user && !isLoading && !error ? (
                 <Button
                   variant="secondary"
-                  className="bg-white rounded-full"
+                  className="bg-white rounded-full  shadow-[0px_0px_10px_0px_rgba(0,0,0,0.05)]"
                   size="icon"
                   onClick={handleLogout}
                 >
@@ -124,7 +123,7 @@ export default function Profile() {
             <h1 className="text-lg leading-[1.1] text-center font-semibold uppercase mb-1">
               {user.first_name} {user.last_name}
             </h1>
-            <p className="text-base leading-[1] font-medium text-center text-muted-foreground mb-2.5">
+            <p className="text-base leading-[1] font-medium text-center text-muted-foreground mb-5">
               {user.email}
             </p>
             <Payments user={user} />
@@ -140,7 +139,6 @@ export default function Profile() {
             </Link>
             <MeasurementsBoard user={user} />
             <KcalBoard user={user} />
-            <LifeGoalBoard user={user} />
             <Link
               href="https://t.me/newlevel_appbot"
               target="_blank"

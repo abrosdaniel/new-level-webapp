@@ -37,7 +37,7 @@ export default function CoursesPage() {
           <Skeleton className="h-10 w-2/5" />
         ) : (
           <>
-            <h1 className="text-xl leading-[1.1] font-semibold uppercase">
+            <h1 className="text-xl leading-[1.1] font-semibold uppercase mb-1">
               Привет,{" "}
               <span className="text-secondary-foreground">
                 {user.first_name}

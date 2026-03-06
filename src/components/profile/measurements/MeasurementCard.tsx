@@ -6,8 +6,8 @@ import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
-import { ArrowRight, ImageOff } from "lucide-react";
-import { Calendar } from "@/assets/icons/App";
+import { ArrowRight } from "lucide-react";
+import { Calendar, Camera } from "@/assets/icons/App";
 import type { Measurement } from "@/types/user";
 
 function getImageFileIds(images: Measurement["images"]): string[] {
@@ -60,7 +60,7 @@ export function MeasurementCard({
           src={getAssetUrl(firstImageId)}
         />
         <AvatarFallback className="rounded-xl aspect-square bg-[#EEF2F5]">
-          <ImageOff className="size-6 text-secondary-foreground" />
+          <Camera className="size-6 text-secondary-foreground" />
         </AvatarFallback>
       </Avatar>
       <GridItem title="Вес" value={`${measurement.weight || "0"} кг`} />
@@ -85,7 +85,7 @@ export function MeasurementCard({
       >
         <ArrowRight className="!size-5 -rotate-45" />
       </Button>
-      {!isLast && <Separator className="mt-4 col-span-3" />}
+      {!isLast && <Separator className="mt-2 col-span-3" />}
     </div>
   );
 }

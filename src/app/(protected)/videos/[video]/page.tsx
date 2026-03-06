@@ -99,7 +99,7 @@ export default function VideoPage({
       ) : (
         <>
           {videoId && (
-            <div className="w-full relative aspect-video rounded-2xl bg-black overflow-hidden mb-6">
+            <div className="w-full relative aspect-video rounded-2xl bg-black overflow-hidden mb-5">
               <KinescopePlayer videoId={videoId} preload="auto" />
             </div>
           )}

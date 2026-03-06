@@ -8,8 +8,8 @@ import { Clock, Play } from "lucide-react";
 export default function VideoCard({ video }: { video: Video }) {
   return (
     <Link href={`/videos/${video.sort}`}>
-      <div className="cursor-pointer flex flex-col bg-white rounded-2xl overflow-hidden shadow-[0_0_10px_rgba(0,0,0,0.1)]">
-        <div className="relative aspect-[9/5] rounded-b-2xl overflow-hidden">
+      <div className="cursor-pointer flex flex-col bg-white rounded-xl overflow-hidden shadow-[0_0_10px_rgba(0,0,0,0.1)]">
+        <div className="relative aspect-[9/5] rounded-b-xl overflow-hidden">
           <Photo
             src={getAssetUrl(video.cover)}
             alt={`Бонусное видео ${video.sort}`}

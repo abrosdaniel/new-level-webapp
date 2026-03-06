@@ -52,7 +52,7 @@ const SectionItem = ({
         <Button
           size="icon"
           className={cn(
-            "rounded-full size-8 justify-self-end self-end",
+            "rounded-full size-8 justify-self-end self-end shadow-none",
             type === "green"
               ? "bg-gray-100 hover:bg-white"
               : "bg-white hover:bg-gray-100",
@@ -87,7 +87,7 @@ export default function Home() {
           <Skeleton className="h-10 w-2/5" />
         ) : (
           <>
-            <h1 className="text-xl leading-[1.1] font-semibold uppercase">
+            <h1 className="text-xl leading-[1.1] font-semibold uppercase mb-1">
               Привет,{" "}
               <span className="text-secondary-foreground">
                 {user.first_name}

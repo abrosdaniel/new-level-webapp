@@ -135,7 +135,7 @@ function CourseCard({
       >
         <LevelIcon
           level={level as "easy" | "medium" | "hard"}
-          className="w-4 h-3"
+          className="w-3 h-3"
         />
         {levelMap[level]}
       </Badge>
@@ -154,12 +154,11 @@ function CourseCard({
               position="center"
               className="w-full h-full"
             />
-            {!isSubscribed ||
-              (!isStarted && (
-                <div className="absolute inset-0 bg-black/60 flex flex-col items-center justify-center z-20">
-                  <LockKeyhole className="size-8 text-white" />
-                </div>
-              ))}
+            {(!isSubscribed || !isStarted) && (
+              <div className="absolute inset-0 bg-black/40 flex flex-col items-center justify-center z-20">
+                <LockKeyhole className="size-8 text-white" />
+              </div>
+            )}
             <div className="absolute bottom-0 left-0 right-0 p-2.5 flex flex-row items-center justify-between w-full z-20">
               {status === "close" && !isSubscribed ? (
                 <div className="p-2 bg-background/50 rounded-full backdrop-blur-sm text-sm leading-[1.15] font-normal text-white">
@@ -198,7 +197,7 @@ function CourseCard({
               <h3 className="text-base leading-[1.15] font-semibold line-clamp-1 uppercase">
                 {title}
               </h3>
-              <p className="text-sm leading-[0.9] text-muted-foreground line-clamp-2">
+              <p className="text-sm leading-[1] text-muted-foreground line-clamp-2">
                 {brief_description}
               </p>
             </div>
@@ -207,11 +206,17 @@ function CourseCard({
       </div>
 
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-        <DialogContent className="mx-auto w-[calc(100%-2rem)] rounded-2xl">
+        <DialogContent
+          className="mx-auto w-[calc(100%-2rem)] rounded-2xl"
+          classClose="text-secondary-foreground"
+        >
           <DialogHeader>{badges}</DialogHeader>
-          <ScrollArea className="max-h-[420px] rounded-2xl">
+          <ScrollArea
+            scrollbar={{ visible: false }}
+            className="max-h-[420px] rounded-xl"
+          >
             <div className="space-y-2.5">
-              <div className="w-full overflow-hidden relative rounded-2xl aspect-[9/3]">
+              <div className="w-full overflow-hidden relative rounded-xl aspect-[9/3]">
                 <Photo
                   src={getAssetUrl(cover)}
                   alt={title}

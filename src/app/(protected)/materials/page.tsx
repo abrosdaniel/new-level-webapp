@@ -164,7 +164,7 @@ export default function Materials() {
       ) : (
         <Notice
           msg={{
-            variant: "notaccess",
+            variant: "lock",
             title: "Доступ закрыт",
             description:
               "Для просмотра материалов необходимо иметь активную подписку.",

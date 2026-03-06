@@ -55,8 +55,10 @@ export function Notice({
           {variant === "star" && <Star />}
           {variant === "telegram" && <Send />}
         </EmptyMedia>
-        <EmptyTitle className="leading-[1.1]">{title}</EmptyTitle>
-        <EmptyDescription className="leading-[1.15]">
+        <EmptyTitle className="text-lg leading-[1.1] font-semibold uppercase">
+          {title}
+        </EmptyTitle>
+        <EmptyDescription className="text-base leading-[1.15] font-normal text-muted-foreground">
           {description}
         </EmptyDescription>
       </EmptyHeader>

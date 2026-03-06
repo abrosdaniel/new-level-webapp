@@ -12,7 +12,7 @@ export default function Documents() {
         <Button
           custom="white"
           size="lg"
-          className="items-center justify-between p-3 mb-1 text-left"
+          className="items-center justify-between p-3 mb-1 text-left shadow-[0_0_10px_rgba(0,0,0,0.1)]"
         >
           <span className="text-wrap">{title}</span>
           <ChevronRightIcon className="!size-5  text-secondary-foreground" />

@@ -18,11 +18,10 @@ import {
   MeasurementImageGrid,
   UPLOAD_OPTIONS,
 } from "@/components/profile/measurements/MeasurementImageGrid";
-import { Button } from "@/components/ui/button";
+import { Button } from "@/components/ds/button";
 import { Notice } from "@/components/Notice";
 import {
   Dialog,
-  DialogClose,
   DialogContent,
   DialogHeader,
   DialogTitle,
@@ -39,9 +38,10 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Badge } from "@/components/ui/badge";
 import { Spinner } from "@/components/ui/spinner";
 import { Photo } from "@/components/Photo";
+import { Separator } from "@/components/ui/separator";
 
-import { ArrowRight, SquarePlus, Trash2 } from "lucide-react";
-import { Calendar, PencilLine } from "@/assets/icons/App";
+import { ArrowRight, Trash2 } from "lucide-react";
+import { Calendar, PencilLine, SquarePlus } from "@/assets/icons/App";
 
 const round1 = (n: number) => Math.round(n * 10) / 10;
 const round2 = (n: number) => Math.round(n * 100) / 100;
@@ -288,52 +288,66 @@ export default function Measurements() {
           <SquarePlus className="!size-4" />
         </Button>
       </div>
-      <div className="flex flex-col gap-4">
-        {!user || isLoading ? (
-          <Notice
-            msg={{
-              variant: "loading",
-              title: "Загрузка",
-              description: "Загружаем измерения…",
-            }}
-          />
-        ) : measurements.length === 0 ? (
-          <Notice
-            msg={{
-              variant: "measurements",
-              title: "Измерений нет",
-              description: (
-                <div className="flex flex-col items-center justify-center gap-2.5">
-                  <p>
-                    Измерений пока нет.
-                    <br />
-                    Добавьте первое измерение, чтобы начать отслеживать ваши
-                    прогрессы.
-                  </p>
-                  <Button
-                    variant="accent"
-                    className="flex-1 h-auto py-3 rounded-2xl font-medium"
-                    onClick={() => setNewDialogOpen(true)}
-                  >
-                    Добавить измерение
-                  </Button>
-                </div>
-              ),
-            }}
-          />
-        ) : (
-          measurements.map((measurement, index, array) => (
-            <MeasurementCard
-              key={measurement.id}
-              measurement={measurement}
-              index={index}
-              array={array}
-              onEdit={openEdit}
-              onCarousel={openCarousel}
+      <ScrollArea
+        scrollbar={{ visible: false }}
+        className="h-[calc(100vh-290px)] bg-white rounded-xl p-3 mb-6"
+      >
+        <div className="flex flex-col gap-4">
+          {!user || isLoading ? (
+            <Notice
+              msg={{
+                variant: "loading",
+                title: "Загрузка",
+                description: "Загружаем измерения…",
+              }}
             />
-          ))
-        )}
-      </div>
+          ) : measurements.length === 0 ? (
+            <Notice
+              msg={{
+                variant: "measurements",
+                title: "Измерений нет",
+                description: (
+                  <div className="flex flex-col items-center justify-center gap-2.5">
+                    <p>
+                      Измерений пока нет.
+                      <br />
+                      Добавьте первое измерение, чтобы начать отслеживать ваши
+                      прогрессы.
+                    </p>
+                    <Button
+                      variant="accent"
+                      className="flex-1 h-auto py-3 rounded-2xl font-medium"
+                      onClick={() => setNewDialogOpen(true)}
+                    >
+                      Добавить измерение
+                    </Button>
+                  </div>
+                ),
+              }}
+            />
+          ) : (
+            measurements.map((measurement, index, array) => (
+              <MeasurementCard
+                key={measurement.id}
+                measurement={measurement}
+                index={index}
+                array={array}
+                onEdit={openEdit}
+                onCarousel={openCarousel}
+              />
+            ))
+          )}
+        </div>
+      </ScrollArea>
+      <Button
+        custom="grey"
+        type="button"
+        className="w-full text-lg h-auto py-3 rounded-2xl font-medium mb-5"
+        onClick={() => setNewDialogOpen(true)}
+      >
+        Новая запись
+        <ArrowRight className="!size-6 text-secondary-foreground" />
+      </Button>
 
       {/* Диалог новой записи */}
       <Dialog
@@ -343,13 +357,16 @@ export default function Measurements() {
           if (!open) setNewFormImages([]);
         }}
       >
-        <DialogContent className="mx-auto w-[calc(100%-2rem)] rounded-2xl">
+        <DialogContent
+          className="mx-auto w-[calc(100%-2rem)] rounded-2xl"
+          classClose="text-secondary-foreground"
+        >
           <DialogHeader>
             <DialogTitle className="text-base font-semibold uppercase text-center flex flex-row items-center justify-between mt-7">
-              <span>Новое измерение</span>
+              <span>Новая запись</span>
               <Badge
                 variant="outline"
-                className="gap-1 px-1.5 py-0.5 rounded-full w-fit text-sm leading-[0.9] font-normal border-muted-foreground text-muted-foreground"
+                className="gap-1 p-1.5 rounded-full w-fit text-sm leading-[0.9] font-normal border-muted-foreground text-muted-foreground"
               >
                 <Calendar className="!size-2.5" />
                 {formatDate(new Date(), "dd.MM.yyyy")}
@@ -409,8 +426,8 @@ export default function Measurements() {
       >
         <DialogContent className="mx-auto w-[calc(100%-2rem)] rounded-2xl">
           <DialogHeader>
-            <DialogTitle className="flex flex-row items-center justify-between mt-7">
-              <span className="text-lg leading-[1.1] font-semibold uppercase">
+            <DialogTitle className="flex flex-row items-center gap-8 justify-between mt-7">
+              <span className="text-start text-lg leading-[1.1] font-semibold uppercase">
                 Измерения{" "}
                 {selectedMeasurement &&
                   formatDate(
@@ -424,8 +441,8 @@ export default function Measurements() {
                   variant="secondary"
                   className={
                     editMode
-                      ? "bg-secondary-foreground/10 rounded-full p-2 shadow-[0_0_10px_rgba(0,0,0,0.1)]"
-                      : "bg-white rounded-full p-2 shadow-[0_0_10px_rgba(0,0,0,0.1)]"
+                      ? "bg-secondary-foreground/10 rounded-full p-2 shadow-[0_0_10px_rgba(0,0,0,0.05)]"
+                      : "bg-white rounded-full p-2 shadow-[0_0_10px_rgba(0,0,0,0.05)]"
                   }
                   size="icon"
                   onClick={() => setEditMode((m) => !m)}
@@ -439,7 +456,7 @@ export default function Measurements() {
                 <Button
                   type="button"
                   variant="secondary"
-                  className="bg-white rounded-full p-2 shadow-[0_0_10px_rgba(0,0,0,0.1)]"
+                  className="bg-white rounded-full p-2 shadow-[0_0_10px_rgba(0,0,0,0.05)]"
                   size="icon"
                   onClick={handleEditDelete}
                   disabled={isDeleting}
@@ -448,14 +465,14 @@ export default function Measurements() {
                 </Button>
               </div>
             </DialogTitle>
+            <Separator className="!my-6 !bg-[#EEF2F5]" />
           </DialogHeader>
           <ScrollArea className="max-h-[70vh]">
             <Form {...editForm}>
               <form
                 onSubmit={editForm.handleSubmit(handleEditSubmit)}
-                className="grid grid-cols-2 gap-4 mx-1"
+                className="grid grid-cols-2 gap-4 mx-1 mb-2.5"
               >
-                <MeasurementFields form={editForm} disabled={!editMode} />
                 <MeasurementImageGrid
                   images={editFormImages}
                   onAdd={handleEditFormImageAdd}
@@ -468,6 +485,7 @@ export default function Measurements() {
                   uploadingCount={editFormUploadingCount}
                   editMode={editMode}
                 />
+                <MeasurementFields form={editForm} disabled={!editMode} />
                 {editMode && (
                   <Button
                     type="submit"
@@ -494,6 +512,25 @@ export default function Measurements() {
                 )}
               </form>
             </Form>
+            {!editMode && (
+              <Button
+                type="button"
+                className="group w-full col-span-2  mb-2.5"
+                size="lg"
+                onClick={() => setEditMode((m) => !m)}
+              >
+                <span>Редактировать запись</span>
+                <ArrowRight className="!size-6 text-secondary-foreground" />
+              </Button>
+            )}
+            <Button
+              custom="grey"
+              type="button"
+              className="w-full text-lg h-auto py-3 rounded-2xl font-medium mb-5"
+              onClick={handleEditDelete}
+            >
+              Удалить запись
+            </Button>
           </ScrollArea>
         </DialogContent>
       </Dialog>

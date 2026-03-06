@@ -265,7 +265,7 @@ export default function Register() {
                           onCheckedChange={
                             field.onChange as (checked: boolean) => void
                           }
-                          className="size-4 border-gray-300 data-[state=checked]:bg-secondary-foreground"
+                          className="size-4 border-gray-300 data-[state=checked]:bg-secondary-foreground data-[state=checked]:border-secondary-foreground shadow-none"
                         />
                         <div className="flex flex-col gap-1.5 text-muted-foreground">
                           <p className="text-sm font-medium leading-[1.15]">

@@ -26,7 +26,7 @@ export default function MeasurementsBoard({ user }: { user: User }) {
   };
 
   return (
-    <div className="grid grid-cols-3 gap-2.5 bg-white px-3 py-4 rounded-2xl shadow-sm mb-2.5">
+    <div className="grid grid-cols-3 gap-2 bg-white p-3 rounded-2xl shadow-sm mb-2.5">
       <Item title="Вес" value={user.measurements?.[0]?.weight || 0} unit="кг" />
       <Item
         title="Рост"

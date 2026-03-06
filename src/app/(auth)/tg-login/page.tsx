@@ -164,7 +164,8 @@ export default function TgLoginPage() {
             Добро пожаловать
           </h1>
           <p className="text-base leading-[1] font-medium text-center text-foreground">
-            приложение с авторскими тренировками от блогера Александры Бальман!
+            в приложение с авторскими тренировками от блогера Александры
+            Бальман!
           </p>
         </div>
         <Photo
@@ -177,9 +178,8 @@ export default function TgLoginPage() {
         {step === "email" ? (
           <>
             <p className="text-base leading-[1.15] text-muted-foreground">
-              Чтобы полноценно пользоваться приложением, нам нужен ваш email.
-              После откроется доступ к личному кабинету, где вы сможете оплатить
-              курс.
+              Чтобы пользоваться приложением, укажите ваш email. После этого
+              откроется доступ к личному кабинету, где вы сможете оплатить курс.
             </p>
             <Form {...emailForm}>
               <form
@@ -217,7 +217,7 @@ export default function TgLoginPage() {
                             onCheckedChange={
                               field.onChange as (checked: boolean) => void
                             }
-                            className="size-4 border-gray-300 data-[state=checked]:bg-secondary-foreground"
+                            className="size-4 border-gray-300 data-[state=checked]:bg-secondary-foreground data-[state=checked]:border-secondary-foreground shadow-none"
                           />
                           <div className="flex flex-col gap-1.5 text-muted-foreground">
                             <p className="text-sm font-medium leading-[1.15]">
@@ -263,7 +263,7 @@ export default function TgLoginPage() {
                     </>
                   ) : (
                     <>
-                      <span>Продолжить</span>
+                      <span>Начать тренировки!</span>
                       <ArrowRight className="!size-6 text-secondary-foreground group-hover:text-gray-400" />
                     </>
                   )}
@@ -318,7 +318,7 @@ export default function TgLoginPage() {
                     </>
                   ) : (
                     <>
-                      <span>Продолжить</span>
+                      <span>Войти</span>
                       <ArrowRight className="!size-6 text-secondary-foreground group-hover:text-gray-400" />
                     </>
                   )}

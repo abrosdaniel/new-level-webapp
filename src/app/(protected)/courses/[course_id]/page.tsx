@@ -126,9 +126,9 @@ export default function CoursePage({
         ) : course.weeks.length === 0 ? (
           <Notice
             msg={{
-              variant: "lock",
+              variant: "notfound",
               title: "Нет доступных недель",
-              description: "У вас пока нет доступных тренировок.",
+              description: "Пока нет доступных недель.",
             }}
           />
         ) : (
@@ -159,7 +159,7 @@ export default function CoursePage({
                 {week.trainings.length === 0 ? (
                   <Notice
                     msg={{
-                      variant: "lock",
+                      variant: "notfound",
                       title: "Тренировок нет",
                       description: "Пока нет доступных тренировок.",
                     }}

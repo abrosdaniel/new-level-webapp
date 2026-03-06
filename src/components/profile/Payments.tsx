@@ -118,15 +118,18 @@ export default function Payments({ user }: { user: User }) {
           <Calendar className="!size-5 text-secondary-foreground group-hover:text-[#8D8E90]" />
         </Button>
       </DialogTrigger>
-      <DialogContent className="mx-auto w-[calc(100%-2rem)] rounded-2xl">
+      <DialogContent
+        className="mx-auto w-[calc(100%-2rem)] rounded-2xl"
+        classClose="text-secondary-foreground"
+      >
         <DialogHeader>
           <DialogTitle className="text-base leading-[1.15] font-semibold uppercase text-center">
             Мои покупки
           </DialogTitle>
         </DialogHeader>
         <Tabs defaultValue="subscriptions" className="w-full">
-          <div className="w-full flex justify-center">
-            <TabsList className="rounded-xl p-0.5 h-auto bg-transparent border border-gray-200">
+          <div className="w-full flex justify-center mb-3">
+            <TabsList className="rounded-full p-[3px] h-auto bg-white shadow-[0_0_10px_rgba(0,0,0,0.05)]">
               <TabsTrigger
                 key="subscriptions"
                 value="subscriptions"
@@ -256,7 +259,7 @@ export default function Payments({ user }: { user: User }) {
                       key={payment.id ?? `pay-${idx}`}
                       className="flex flex-col bg-white p-4 rounded-xl"
                     >
-                      <div className="grid grid-cols-2">
+                      <div className="grid grid-cols-2 gap-2">
                         <div className="flex items-start justify-start">
                           <p className="text-sm leading-[1.15] font-normal text-muted-foreground">
                             {formatSafe(
