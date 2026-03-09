@@ -74,13 +74,13 @@ export default function Materials() {
     return (
       <Link href={href}>
         <div className="cursor-pointer flex flex-col bg-white rounded-2xl overflow-hidden shadow-[0_0_10px_rgba(0,0,0,0.1)]">
-          <div className="relative aspect-[9/5] rounded-b-2xl overflow-hidden bg-[#EEF2F5]">
+          <div className="relative aspect-[10/5] rounded-b-2xl overflow-hidden bg-[#EEF2F5]">
             <Photo
               src={getAssetUrl(cover)}
               alt={title}
               fit="cover"
               position="center"
-              className="absolute bottom-3 left-3 size-16 rounded-full"
+              className="absolute bottom-3 left-3 size-[4.5rem] rounded-full"
             />
             <Button
               size="icon"
@@ -89,8 +89,8 @@ export default function Materials() {
               <ArrowRight className="!size-4 -rotate-45 text-secondary-foreground" />
             </Button>
           </div>
-          <div className="px-2 py-3.5">
-            <h3 className="text-base leading-[1.15] font-semibold line-clamp-1 uppercase mb-2">
+          <div className="px-2 pt-2.5 pb-7">
+            <h3 className="text-base leading-[1.15] font-semibold line-clamp-1 uppercase">
               {title}
             </h3>
           </div>
@@ -144,7 +144,7 @@ export default function Materials() {
                         {sectionMaterials.map((material) => (
                           <CarouselItem
                             key={material.id}
-                            className="pl-4 basis-2/3"
+                            className="pl-4 basis-7/12"
                           >
                             <ToolItem
                               title={material.title}

@@ -61,9 +61,15 @@ export async function POST(req: Request) {
     const directusRefreshToken = cookieStore.get("refresh_token")?.value;
 
     // access_token может отсутствовать (cookie истёк), пробуем refresh
+    // Не пробуем refresh при authToken (Telegram) — у такого пользователя нет Directus refresh_token
+    const hasValidAuthToken = !!(authToken && (await verifyToken(authToken)));
     let effectiveDirectusToken = directusToken;
     let manualRefreshTokens: DirectusCookies | null = null;
-    if (!effectiveDirectusToken && directusRefreshToken?.trim()) {
+    if (
+      !effectiveDirectusToken &&
+      directusRefreshToken?.trim() &&
+      !hasValidAuthToken
+    ) {
       const refreshed = await refreshDirectusTokens(directusRefreshToken);
       if (refreshed) {
         manualRefreshTokens = {
@@ -76,8 +82,7 @@ export async function POST(req: Request) {
     }
 
     if (mode === "user") {
-      const hasAuth =
-        (authToken && (await verifyToken(authToken))) || effectiveDirectusToken;
+      const hasAuth = hasValidAuthToken || !!effectiveDirectusToken;
       if (!hasAuth) {
         const tokenExpired =
           (directusToken || directusRefreshToken) && !effectiveDirectusToken;

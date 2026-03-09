@@ -4,6 +4,7 @@ export interface Course {
   date_start: string;
   level: string;
   cover: string;
+  tags?: JSON;
   title: string;
   brief_description: string;
   description: string;

@@ -162,7 +162,7 @@ export default function RecipePage({
           <div className="grid grid-cols-2 gap-2.5 mx-4 mb-5 items-stretch">
             <Badge
               variant="outline"
-              className="inline-flex h-full items-center justify-center gap-1 rounded-full px-1.5 py-0.5 border-muted-foreground text-sm leading-[0.9] font-normal min-h-5 text-muted-foreground"
+              className="inline-flex h-full items-center justify-center gap-1 rounded-full px-1.5 py-1 border-muted-foreground text-sm leading-[0.9] font-normal min-h-5 text-muted-foreground"
             >
               <span className="text-secondary-foreground leading-[1.15] font-medium">
                 Белки
@@ -171,7 +171,7 @@ export default function RecipePage({
             </Badge>
             <Badge
               variant="outline"
-              className="inline-flex h-full items-center justify-center gap-1 rounded-full px-1.5 py-0.5 border-muted-foreground text-sm leading-[0.9] font-normal min-h-5 text-muted-foreground"
+              className="inline-flex h-full items-center justify-center gap-1 rounded-full px-1.5 py-1 border-muted-foreground text-sm leading-[0.9] font-normal min-h-5 text-muted-foreground"
             >
               <span className="text-secondary-foreground leading-[1.15] font-medium">
                 Жиры
@@ -180,7 +180,7 @@ export default function RecipePage({
             </Badge>
             <Badge
               variant="outline"
-              className="inline-flex h-full items-center justify-center gap-1 rounded-full px-1.5 py-0.5 border-muted-foreground text-sm leading-[0.9] font-normal min-h-5 text-muted-foreground"
+              className="inline-flex h-full items-center justify-center gap-1 rounded-full px-1.5 py-1 border-muted-foreground text-sm leading-[0.9] font-normal min-h-5 text-muted-foreground"
             >
               <span className="text-secondary-foreground leading-[1.15] font-medium">
                 Углеводы
@@ -189,7 +189,7 @@ export default function RecipePage({
             </Badge>
             <Badge
               variant="outline"
-              className="inline-flex h-full items-center justify-center gap-1 rounded-full px-1.5 py-0.5 border-muted-foreground text-sm leading-[0.9] font-normal min-h-5 text-muted-foreground"
+              className="inline-flex h-full items-center justify-center gap-1 rounded-full px-1.5 py-1 border-muted-foreground text-sm leading-[0.9] font-normal min-h-5 text-muted-foreground"
             >
               <Flame className="size-4 text-secondary-foreground" />
               {nutrients?.kcal ?? recipe.kcal} Ккал

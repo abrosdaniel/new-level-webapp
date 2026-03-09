@@ -160,27 +160,24 @@ export default function ResetPasswordPage() {
 
   if (state === "sent") {
     return (
-      <Notice
-        msg={{
-          variant: "sent",
-          title: "Ссылка отправлена",
-          description: (
-            <p>
-              Если на email адрес <span className="font-medium">{email}</span>{" "}
-              существует аккаунт, то ссылка для сброса пароля отправлена.
-              Проверьте почту и перейдите по ссылке.
-              <br />
-              <br />
-              <Link
-                href="/login"
-                className="text-center text-sm text-foreground hover:underline"
-              >
-                Вернуться к входу
-              </Link>
-            </p>
-          ),
-        }}
-      />
+      <Page back={false} menu={false}>
+        <div className="flex flex-col lg:max-w-md lg:mx-auto">
+          <h1 className="text-lg font-semibold uppercase text-secondary-foreground mb-4">
+            Письмо отправлено!
+          </h1>
+          <p className="text-normal text-base leading-[1.15] text-muted-foreground mb-6">
+            Если аккаунт с этим email существует, мы отправили письмо со ссылкой
+            для восстановления пароля.
+            <br />
+            Проверьте почту и перейдите по ссылке.
+          </p>
+          <Link href="/login">
+            <Button custom="grey" size="lg">
+              Вернуться ко входу
+            </Button>
+          </Link>
+        </div>
+      </Page>
     );
   }
 
@@ -190,10 +187,14 @@ export default function ResetPasswordPage() {
 
   return (
     <Page back={false} menu={false}>
-      <div className="flex flex-col gap-6 lg:max-w-md lg:mx-auto">
-        <h1 className="text-lg font-semibold uppercase">
+      <div className="flex flex-col lg:max-w-md lg:mx-auto">
+        <h1 className="text-lg font-semibold uppercase mb-4">
           Восстановление пароля
         </h1>
+        <p className="text-normal text-base leading-[1.15] text-muted-foreground mb-6">
+          Введите вашу почту, и мы пришлем вам письмо с инструкцией для
+          восстановление пароля
+        </p>
 
         {showRequestForm && state === "request" && (
           <Form {...formRequest}>
@@ -289,7 +290,7 @@ export default function ResetPasswordPage() {
 
         <Link
           href="/login"
-          className="text-center text-sm text-muted-foreground hover:underline"
+          className="text-center text-sm text-muted-foreground hover:underline mt-4"
         >
           Вернуться к входу
         </Link>

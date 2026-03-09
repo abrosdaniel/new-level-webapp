@@ -18,8 +18,10 @@ import {
 import { Badge } from "@/components/ui/badge";
 import KcalBoard from "@/components/profile/KcalBoard";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Button } from "@/components/ds/button";
 
-import { Clock, Flame } from "lucide-react";
+import { Clock } from "lucide-react";
+import { Flame } from "@/assets/icons/App";
 
 const SECTIONS = [
   {
@@ -121,7 +123,18 @@ export default function Recipes() {
       {isSubscribed ? (
         <>
           {user ? (
-            <KcalBoard user={user} variant="recipes" className="mx-4 mb-6" />
+            <div className="mx-4">
+              <KcalBoard user={user} variant="recipes" className="mb-2.5" />
+              <Link href="/profile" className="w-full">
+                <Button
+                  custom="grey"
+                  type="button"
+                  className="w-full text-base h-auto py-3 rounded-2xl font-medium mb-6"
+                >
+                  Пересчитать норму калорий
+                </Button>
+              </Link>
+            </div>
           ) : (
             <Skeleton className="h-28 rounded-2xl mx-4" />
           )}
@@ -167,7 +180,7 @@ export default function Recipes() {
                           {sectionRecipes.map((recipe) => (
                             <CarouselItem
                               key={recipe.id}
-                              className="pl-4 basis-2/3"
+                              className="pl-4 basis-7/12"
                             >
                               <RecipeItem
                                 title={recipe.title}

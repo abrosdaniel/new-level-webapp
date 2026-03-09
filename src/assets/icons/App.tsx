@@ -679,6 +679,41 @@ const Camera: React.FC<{ className?: string }> = ({ className }) => {
   );
 };
 
+const Image: React.FC<{ className?: string }> = ({ className }) => {
+  return (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      className={className}
+      viewBox="0 0 23 23"
+      fill="none"
+    >
+      <rect
+        x="1.91797"
+        y="1.9165"
+        width="19.1667"
+        height="19.1667"
+        rx="4.79167"
+        stroke="currentColor"
+        strokeWidth="1.4375"
+      />
+      <path
+        d="M2.39844 16.7707L4.5635 15.2242C5.24968 14.7341 6.18963 14.8119 6.7859 15.4081L7.81443 16.4367C8.26353 16.8858 8.99167 16.8858 9.44078 16.4367L14.222 11.6554C14.8529 11.0245 15.8607 10.9788 16.5461 11.55L21.0859 15.3332"
+        stroke="currentColor"
+        strokeWidth="1.4375"
+        strokeLinecap="round"
+      />
+      <circle
+        cx="1.91667"
+        cy="1.91667"
+        r="1.91667"
+        transform="matrix(-1 0 0 1 9.58594 5.75)"
+        stroke="currentColor"
+        strokeWidth="1.4375"
+      />
+    </svg>
+  );
+};
+
 export {
   Flame,
   Dumbbell,
@@ -702,4 +737,5 @@ export {
   Snack,
   SquarePlus,
   Camera,
+  Image,
 };

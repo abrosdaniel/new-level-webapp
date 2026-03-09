@@ -9,7 +9,7 @@ import { toast } from "sonner";
 
 import type { Course } from "@/types/courses";
 
-import { Page } from "@/components/Init";
+import { Page, Link } from "@/components/Init";
 import UserHeader from "@/components/UserHeader";
 import { Notice } from "@/components/Notice";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -21,6 +21,8 @@ import {
 } from "@/components/ui/carousel";
 import TrainingCard from "@/components/courses/TrainingCard";
 import { LockKeyhole } from "@/assets/icons/App";
+import { Button } from "@/components/ds/button";
+import { Zap } from "lucide-react";
 
 export default function CoursePage({
   params,
@@ -114,9 +116,35 @@ export default function CoursePage({
       {isCourseLoading || !course ? (
         <Skeleton className="h-20 w-full mx-4" />
       ) : (
-        <p className="text-base leading-[1.15] font-normal text-muted-foreground mx-4">
-          {course.brief_description}
-        </p>
+        <div className="mx-4">
+          <p className="text-base leading-[1.15] font-normal text-muted-foreground mb-4">
+            {course.brief_description}
+          </p>
+          <div className="flex flex-wrap items-center gap-2 mb-6">
+            {(Array.isArray(course.tags)
+              ? course.tags
+              : Object.keys(course.tags ?? {})
+            ).map((tag) => (
+              <Badge
+                key={tag}
+                variant="outline"
+                className="rounded-full px-2 py-1.5 border-secondary-foreground text-sm leading-[0.9] font-normal text-muted-foreground"
+              >
+                {tag}
+              </Badge>
+            ))}
+          </div>
+          <Link href="/contest" className="w-full">
+            <Button
+              custom="grey"
+              type="button"
+              className="w-full text-base h-auto py-3 rounded-2xl font-medium bg-secondary-foreground"
+            >
+              Загрузить фото для конкурса
+              <Zap className="size-4" />
+            </Button>
+          </Link>
+        </div>
       )}
       <div className="relative w-full mb-24">
         {isCourseLoading || !course || !course.weeks ? (

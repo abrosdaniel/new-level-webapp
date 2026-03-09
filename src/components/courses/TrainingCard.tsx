@@ -35,9 +35,9 @@ export default function TrainingCard({
   return (
     <div
       onClick={handleCardClick}
-      className="cursor-pointer flex flex-col bg-white rounded-2xl overflow-hidden shadow-[0_0_10px_rgba(0,0,0,0.1)]"
+      className="cursor-pointer flex flex-col h-full bg-white rounded-2xl overflow-hidden shadow-[0_0_10px_rgba(0,0,0,0.1)]"
     >
-      <div className="relative aspect-[9/5] rounded-b-2xl overflow-hidden">
+      <div className="relative aspect-[9/5] rounded-b-2xl overflow-hidden shrink-0">
         <Photo
           src={getAssetUrl(training.cover)}
           alt={`Тренировка ${training.sort}`}
@@ -51,8 +51,8 @@ export default function TrainingCard({
           </div>
         )}
       </div>
-      <div className="px-2 py-3.5">
-        <div className="flex flex-row items-center gap-2 mb-2">
+      <div className="flex flex-col h-full px-2 py-3.5 flex-1">
+        <div className="flex flex-row items-center gap-2 mb-2 shrink-0">
           <Badge
             variant="outline"
             className="inline-flex items-center gap-1 rounded-full px-1.5 py-0.5 border-muted-foreground text-sm leading-[0.9] font-normal min-h-5 text-muted-foreground"
@@ -68,10 +68,10 @@ export default function TrainingCard({
             {training.time} мин
           </Badge>
         </div>
-        <h3 className="text-base leading-[1.15] font-semibold line-clamp-1 uppercase mb-2">
+        <h3 className="text-base leading-[1.15] font-semibold line-clamp-1 uppercase mb-2 shrink-0">
           Тренировка {training.sort}
         </h3>
-        <p className="text-sm leading-[0.9] text-muted-foreground line-clamp-2">
+        <p className="text-sm leading-[1] text-muted-foreground line-clamp-2 flex-1">
           {training.brief_description}
         </p>
       </div>
