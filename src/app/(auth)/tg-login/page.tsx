@@ -136,8 +136,20 @@ export default function TgLoginPage() {
         toast.success("Успех! Добро пожаловать!");
         router.replace(redirectTo);
       }
-    } catch {
-      toast.error("Ошибка проверки email");
+    } catch (err) {
+      const code = (err as Error & { code?: string })?.code;
+      const msg = err instanceof Error ? err.message : "";
+      if (
+        code === "EMAIL_EXISTS" ||
+        msg.includes("уже существует") ||
+        msg.toLowerCase().includes("unique")
+      ) {
+        setEmailExists(true);
+        setStep("password");
+        passwordForm.reset({ password: "" });
+      } else {
+        toast.error("Ошибка проверки email");
+      }
     }
   };
 

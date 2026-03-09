@@ -32,10 +32,7 @@ export function useData<T = unknown>(
     queryKey: [params?.collection, params?.key, params?.token],
     queryFn: () => fetchData(params!) as Promise<T>,
     enabled: params != null,
-    retry: false, // 401 → CrowdSec LePresidente/http-generic-401-bf
-    refetchOnWindowFocus: false,
-    refetchOnMount: false,
-    refetchOnReconnect: false,
+    retry: false, // 401 → CrowdSec LePresidente/http-generic-401-bf (retry давал 4+ запросов)
     ...options,
   });
 }

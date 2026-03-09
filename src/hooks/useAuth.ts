@@ -37,8 +37,15 @@ export function useAuth() {
         credentials: "include",
       });
       if (!res.ok) {
-        const data = await res.json().catch(() => ({}));
-        throw new Error(data?.error || "Register failed");
+        const data = (await res.json().catch(() => ({}))) as {
+          error?: string;
+          code?: string;
+        };
+        const err = new Error(data?.error || "Register failed") as Error & {
+          code?: string;
+        };
+        err.code = data?.code;
+        throw err;
       }
       const data = (await res.json()) as { user: User };
       return data;

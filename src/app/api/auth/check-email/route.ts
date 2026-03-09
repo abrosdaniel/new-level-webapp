@@ -11,10 +11,11 @@ export async function POST(req: Request) {
       );
     }
 
+    const normalized = email.trim().toLowerCase();
     const client = getDirectusAdmin();
     const usersResponse = await client.request(
       readUsers({
-        filter: { email: { _eq: email.trim().toLowerCase() } },
+        filter: { email: { _eq: normalized } },
         limit: 1,
         fields: ["id"],
       }),

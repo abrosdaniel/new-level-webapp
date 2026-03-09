@@ -134,6 +134,7 @@ export default function CoursePage({
               </Badge>
             ))}
           </div>
+          {/* Убрать в конце конкурса */}
           <Link href="/contest" className="w-full">
             <Button
               custom="grey"
@@ -144,6 +145,38 @@ export default function CoursePage({
               <Zap className="size-4" />
             </Button>
           </Link>
+          <div className="flex flex-col">
+            <h3 className="text-base leading-[1.15] font-semibold uppercase mb-3 mt-6">
+              Ссылки на чаты в телеграм:
+            </h3>
+            <div className="flex flex-row items-center justify-between">
+              <Link
+                href="https://t.me/+GQhlMeoeDodmMmYy"
+                className="text-base leading-[1.15] font-normal text-secondary-foreground underline text-nowrap"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                Тренировки
+              </Link>
+              <Link
+                href="https://t.me/+wRugM6VrLCRjODE6"
+                className="text-base leading-[1.15] font-normal text-secondary-foreground underline text-nowrap"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                Питание
+              </Link>
+              <Link
+                href="https://t.me/+YCdX0hlAKIMzNTli"
+                className="text-base leading-[1.15] font-normal text-secondary-foreground underline text-nowrap"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                Общий чат для общения
+              </Link>
+            </div>
+          </div>
+          {/* Убрать в конце конкурса */}
         </div>
       )}
       <div className="relative w-full mb-24">

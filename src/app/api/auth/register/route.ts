@@ -69,12 +69,13 @@ export async function POST(req: Request) {
       );
     }
 
+    const emailNormalized = String(email).trim().toLowerCase();
     const adminClient = getDirectusAdmin();
 
     const userData: Record<string, unknown> = {
       first_name: first_name ?? "",
       last_name: last_name ?? "",
-      email,
+      email: emailNormalized,
       password,
       status: "active",
       role: "b8a98260-14a2-4be2-91b4-ab93dd6a9be0",
@@ -90,7 +91,7 @@ export async function POST(req: Request) {
       .with(rest());
 
     const authData = await authClient.login(
-      { email, password },
+      { email: emailNormalized, password },
       { mode: "json" },
     );
     const token = authData?.access_token;
@@ -162,7 +163,10 @@ export async function POST(req: Request) {
 
     if (errCode === "RECORD_NOT_UNIQUE" || errMsg?.includes("unique")) {
       return NextResponse.json(
-        { error: "Пользователь с таким email уже существует" },
+        {
+          error: "Пользователь с таким email уже существует",
+          code: "EMAIL_EXISTS",
+        },
         { status: 409 },
       );
     }
