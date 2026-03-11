@@ -7,6 +7,7 @@ import { z } from "zod";
 import { toast } from "sonner";
 
 import { useAuth } from "@/hooks/useAuth";
+import { useUser } from "@/hooks/useUser";
 import { getSafeRedirect } from "@/lib/utils";
 
 import { Page, Link } from "@/components/Init";
@@ -36,6 +37,7 @@ export default function LoginPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { login } = useAuth();
+  const { refetch } = useUser();
   const redirectTo = getSafeRedirect(searchParams.get("redirect"));
 
   const form = useForm<LoginFormData>({
@@ -48,6 +50,7 @@ export default function LoginPage() {
   const onSubmit = async (data: LoginFormData) => {
     try {
       await login({ email: data.email, password: data.password });
+      await refetch();
       router.replace(redirectTo);
     } catch (err) {
       toast.error("Неверный email или пароль");

@@ -1,11 +1,20 @@
 import { differenceInYears } from "date-fns";
 
+/** Норма БЖУ в граммах */
+export interface MacrosResult {
+  protein: number;
+  carbs: number;
+  fat: number;
+}
+
 export interface CaloriesResult {
   weight_loss?: number;
   weight_maintenance?: number;
   gaining_muscle_mass?: number;
-  /** Значение для переданного goal (при наличии goal) */
-  value?: number;
+  /** Значение калорий для переданного goal (при наличии goal) */
+  kcal?: number;
+  /** Норма БЖУ для переданного goal (при наличии goal) */
+  macros?: MacrosResult;
 }
 
 export interface UseCaloriesParams {
@@ -17,6 +26,57 @@ export interface UseCaloriesParams {
   goal?: "weight_loss" | "weight_maintenance" | "gaining_muscle_mass" | null;
 }
 
+/** Белок г/кг по цели (эталон: поддержание 1.5, похудение 1.6, набор 1.8) */
+const PROTEIN_PER_KG_BASE: Record<
+  "weight_loss" | "weight_maintenance" | "gaining_muscle_mass",
+  number
+> = {
+  weight_loss: 1.6,
+  weight_maintenance: 1.5,
+  gaining_muscle_mass: 1.8,
+};
+
+/** Множитель белка по уровню активности */
+const PROTEIN_LIFESTYLE_MULT: Record<
+  "low" | "easy" | "average" | "high" | "highst",
+  number
+> = {
+  low: 1,
+  easy: 1.25,
+  average: 1.5,
+  high: 2,
+  highst: 2.5,
+};
+
+/** Жиры г/кг по цели (эталон: 0.8–1 г/кг, среднее 0.9 для поддержания) */
+const FAT_PER_KG: Record<
+  "weight_loss" | "weight_maintenance" | "gaining_muscle_mass",
+  number
+> = {
+  weight_loss: 0.8,
+  weight_maintenance: 0.9,
+  gaining_muscle_mass: 1,
+};
+
+/** Расчёт БЖУ: белок и жиры по весу, углеводы — остаток */
+function calcMacros(
+  kcal: number,
+  weight: number,
+  goal: "weight_loss" | "weight_maintenance" | "gaining_muscle_mass",
+  lifestyle: "low" | "easy" | "average" | "high" | "highst",
+): MacrosResult {
+  const baseProtein = weight * PROTEIN_PER_KG_BASE[goal];
+  const protein = baseProtein * PROTEIN_LIFESTYLE_MULT[lifestyle];
+  const fat = weight * FAT_PER_KG[goal];
+  const carbsKcal = kcal - protein * 4 - fat * 9;
+  const carbs = Math.max(0, carbsKcal / 4);
+  return {
+    protein: Math.round(protein),
+    carbs: Math.round(carbs),
+    fat: Math.round(fat),
+  };
+}
+
 /**
  * Расчёт калорий по формуле Миффлина-Сан Жеора.
  * При переданном goal возвращает только значение для этой цели в поле value.
@@ -26,11 +86,13 @@ export interface UseCaloriesParams {
 export function getCalcCalories(params: UseCaloriesParams): CaloriesResult {
   const { gender, birthday, weight, height, lifestyle, goal } = params;
 
+  const zeroMacros: MacrosResult = { protein: 0, carbs: 0, fat: 0 };
   const zeroResult: CaloriesResult = {
     weight_loss: 0,
     weight_maintenance: 0,
     gaining_muscle_mass: 0,
-    value: 0,
+    kcal: 0,
+    macros: zeroMacros,
   };
 
   if (weight === 0 || height === 0) {
@@ -71,13 +133,35 @@ export function getCalcCalories(params: UseCaloriesParams): CaloriesResult {
   const gainingMuscleMass = Math.round(tdee * 1.1);
 
   if (goal === "weight_loss") {
-    return { weight_loss: weightLoss, value: weightLoss };
+    return {
+      weight_loss: weightLoss,
+      kcal: weightLoss,
+      macros: calcMacros(weightLoss, weight, "weight_loss", lifestyle),
+    };
   }
   if (goal === "weight_maintenance") {
-    return { weight_maintenance: weightMaintenance, value: weightMaintenance };
+    return {
+      weight_maintenance: weightMaintenance,
+      kcal: weightMaintenance,
+      macros: calcMacros(
+        weightMaintenance,
+        weight,
+        "weight_maintenance",
+        lifestyle,
+      ),
+    };
   }
   if (goal === "gaining_muscle_mass") {
-    return { gaining_muscle_mass: gainingMuscleMass, value: gainingMuscleMass };
+    return {
+      gaining_muscle_mass: gainingMuscleMass,
+      kcal: gainingMuscleMass,
+      macros: calcMacros(
+        gainingMuscleMass,
+        weight,
+        "gaining_muscle_mass",
+        lifestyle,
+      ),
+    };
   }
 
   return {

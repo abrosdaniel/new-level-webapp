@@ -1,12 +1,26 @@
 "use client";
 
+import { useRouter } from "next/navigation";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 
 import type { User } from "@/types/user";
 import { formatBirthday } from "@/lib/utils";
 import { useUser } from "./useUser";
 
+/** Инвалидирует все useData-запросы с token: "user" (courses, recipes и т.д.) */
+function invalidateUserDataQueries(
+  queryClient: ReturnType<typeof useQueryClient>,
+) {
+  queryClient.invalidateQueries({
+    predicate: (query) =>
+      Array.isArray(query.queryKey) &&
+      query.queryKey.length === 3 &&
+      query.queryKey[2] === "user",
+  });
+}
+
 export function useAuth() {
+  const router = useRouter();
   const queryClient = useQueryClient();
   const userData = useUser();
 
@@ -23,8 +37,13 @@ export function useAuth() {
         terms: boolean;
       } & { platform?: "web" | "telegram"; initData?: string },
     ) => {
-      const { confirm_password: _, terms: __, platform, initData, ...payload } =
-        body;
+      const {
+        confirm_password: _,
+        terms: __,
+        platform,
+        initData,
+        ...payload
+      } = body;
       const res = await fetch("/api/auth/register", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -53,6 +72,8 @@ export function useAuth() {
     onSuccess: (data) => {
       if (data?.user) {
         queryClient.setQueryData(["user"], { user: data.user });
+        queryClient.invalidateQueries({ queryKey: ["user"] });
+        invalidateUserDataQueries(queryClient);
       } else {
         queryClient.invalidateQueries({ queryKey: ["user"] });
       }
@@ -82,6 +103,8 @@ export function useAuth() {
     onSuccess: (data) => {
       if (data?.user) {
         queryClient.setQueryData(["user"], { user: data.user });
+        queryClient.invalidateQueries({ queryKey: ["user"] });
+        invalidateUserDataQueries(queryClient);
       } else {
         queryClient.invalidateQueries({ queryKey: ["user"] });
       }
@@ -112,6 +135,7 @@ export function useAuth() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["user"] });
+      invalidateUserDataQueries(queryClient);
     },
   });
 
@@ -137,6 +161,8 @@ export function useAuth() {
     },
     onSuccess: () => {
       queryClient.setQueryData(["user"], null);
+      invalidateUserDataQueries(queryClient);
+      router.push("/");
     },
   });
 

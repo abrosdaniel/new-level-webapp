@@ -41,7 +41,7 @@ export default function KcalBoard({
   className?: string;
 }) {
   const [hoverCardOpen, setHoverCardOpen] = useState(false);
-  const kcal = getCalcCalories({
+  const calculate = getCalcCalories({
     gender: user.gender,
     birthday: user.birthday,
     weight: user.measurements?.[0]?.weight || 0,
@@ -71,19 +71,39 @@ export default function KcalBoard({
               align="end"
               className="text-sm leading-[1.15] font-normal text-muted-foreground text-center rounded-xl border-none shadow-[0px_0px_10px_0px_rgba(0,0,0,0.1)]"
             >
-              Чтобы рассчитать свою норму калорийности, введи свои актуальные
-              параметры в Моих измерениях и выбери свой текущий уровень
-              активности. Норма калорийности рассчитается автоматически.
+              Чтобы рассчитать свою норму кбжу, заполни данные профиля, введи
+              свои актуальные параметры в Моих измерениях и выбери свой текущий
+              уровень активности. Норма кбжу рассчитается автоматически.
             </HoverCardContent>
           </HoverCard>
         )}
       </div>
-      <div className="flex flex-col items-center justify-center bg-[#EEF2F5] py-2.5 rounded-xl">
+      <div className="flex flex-col items-center justify-center bg-[#EEF2F5] py-2.5 rounded-xl mb-2.5">
         <h3 className="inline-flex gap-1 text-base leading-[1.15] font-semibold mb-1">
           <Flame className="size-4 text-secondary-foreground" />
-          <span>{kcal.value ?? 0} Ккал</span>
+          <span>{calculate.kcal ?? 0} Ккал</span>
         </h3>
         <p className="text-base leading-[1.15]">{GOAL_LABELS[user.goal]}</p>
+      </div>
+      <div className="flex flex-row gap-2">
+        <div className="flex flex-col items-center justify-center bg-[#EEF2F5] py-2.5 rounded-xl w-full">
+          <h3 className="text-base leading-[1.15] font-semibold mb-0.5">
+            {calculate.macros?.protein ?? 0} г
+          </h3>
+          <p className="text-base leading-[1.15]">Белки</p>
+        </div>
+        <div className="flex flex-col items-center justify-center bg-[#EEF2F5] py-2.5 rounded-xl w-full">
+          <h3 className="text-base leading-[1.15] font-semibold mb-0.5">
+            {calculate.macros?.fat ?? 0} г
+          </h3>
+          <p className="text-base leading-[1.15]">Жиры</p>
+        </div>
+        <div className="flex flex-col items-center justify-center bg-[#EEF2F5] py-2.5 rounded-xl w-full">
+          <h3 className="text-base leading-[1.15] font-semibold mb-0.5">
+            {calculate.macros?.carbs ?? 0} г
+          </h3>
+          <p className="text-base leading-[1.15]">Углеводы</p>
+        </div>
       </div>
       {variant === "profile" && <LifeGoalBoard user={user} />}
       {variant === "recipes" && (

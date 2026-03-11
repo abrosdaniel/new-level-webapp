@@ -20,6 +20,7 @@ import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 import { Flame } from "@/assets/icons/App";
 import { Clock } from "lucide-react";
+import { Input } from "@/components/ds/fields";
 
 const TYPES = [
   {
@@ -48,7 +49,7 @@ export default function RecipePage({
   const resolvedParams = use(params);
   const router = useRouter();
   const { user } = useUser();
-  const [portion, setPortion] = useState<"100g" | "1portion">("1portion");
+  const [portion, setPortion] = useState<number>(100);
 
   const {
     data: recipes = [],
@@ -71,18 +72,16 @@ export default function RecipePage({
 
   const recipe = recipes[0];
 
-  const portionValue =
-    portion === "100g" ? 100 : (recipe?.portion_weight ?? 100);
   const nutrients = useMemo(() => {
     if (!recipe) return null;
     return getCalcRecipe(
-      portionValue,
+      portion,
       recipe.kcal,
       recipe.protein,
       recipe.carbs,
       recipe.fat,
     );
-  }, [recipe, portionValue]);
+  }, [recipe, portion]);
 
   const isSubscribed = user?.subscriptions?.some(
     (subscription) =>
@@ -135,29 +134,28 @@ export default function RecipePage({
               {recipe.time ?? 0} минут
             </div>
           </div>
-          <div className="flex flex-row items-center justify-between mx-4 mb-5">
+          <div className="flex flex-row items-start justify-between mx-4 mb-5">
             <p className="text-sm leading-[1.15] font-medium text-muted-foreground">
               {TYPES.find((t) => t.value === recipe.type)?.title}
             </p>
-            <Tabs
-              value={portion}
-              onValueChange={(v) => setPortion(v as "100g" | "1portion")}
-            >
-              <TabsList className="bg-transparent">
-                <TabsTrigger
-                  value="1portion"
-                  className="rounded-full px-2.5 py-1.5 text-sm leading-[1.15] font-medium text-muted-foreground data-[state=active]:bg-secondary-foreground data-[state=active]:text-white"
-                >
-                  на 1 порцию
-                </TabsTrigger>
-                <TabsTrigger
-                  value="100g"
-                  className="rounded-full px-2.5 py-1.5 text-sm leading-[1.15] font-medium text-muted-foreground data-[state=active]:bg-secondary-foreground data-[state=active]:text-white"
-                >
-                  на 100 грамм
-                </TabsTrigger>
-              </TabsList>
-            </Tabs>
+            <div className="flex flex-col items-start justify-center gap-1">
+              <div className="flex flex-row items-center gap-1">
+                <Input
+                  id="portion"
+                  type="number"
+                  min={100}
+                  value={portion}
+                  onChange={(e) => setPortion(Number(e.target.value))}
+                  className="!py-3 text-center max-h-10 max-w-28"
+                />
+                <span className="text-base leading-[1.15] font-normal text-muted-foreground">
+                  грамм
+                </span>
+              </div>
+              <span className="text-xs leading-[1.15] font-normal text-secondary-foreground">
+                введите вес порции
+              </span>
+            </div>
           </div>
           <div className="grid grid-cols-2 gap-2.5 mx-4 mb-5 items-stretch">
             <Badge
